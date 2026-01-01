@@ -1,0 +1,58 @@
+<div *ngIf="isAuthenticated" class="mb-3">
+    <button class="btn" [ngClass]="showFavorites ? 'btn-outline-brand' : 'btn-brand'" type="button" (click)="toggleDisplay()">{{ showFavorites ? 'Show All Recipes' : 'Show Favorites' }} <i [ngClass]="showFavorites ? '' : 'fas fa-heart'"></i></button>
+    <button class="btn btn-brand-alt mobile-hide ms-3" type="button" [disabled]="selectedRecipes.length == 0" (click)="addSelectedRecipesToGroceryList()">Add to Groceries</button>
+	
+	<span class="float-end mobile-hide">
+		<button class="btn btn-brand-secondary btn-mobile ms-3" type="button" routerLink="/account/recipes">My Recipes <i class="fas fa-user"></i></button>
+	</span>
+</div>
+<div *ngIf="!isAuthenticated" class="mobile-hide mb-3">
+    <button class="btn btn-brand-alt" type="button" [disabled]="selectedRecipes.length == 0" (click)="addSelectedRecipesToGroceryList()">Add to Groceries</button>
+    <!-- <button class="btn btn-brand-secondary ms-3" type="button" [disabled]="recipeList.length == 0" routerLink="/account/plan">Recipe Groceries</button> -->
+</div>
+
+<app-spinner *ngIf="loading" [centered]="true"></app-spinner>
+
+<table *ngIf="loading === false" class="table table-hover caption-top">
+    <caption>{{ showFavorites ? 'Favorite recipes' : 'All recipes' }}</caption>
+    
+    <app-pretty *ngIf="settings.recipesTheme === 'Pretty'" [recipes]="shownRecipes" [favoredRecipes]="favoredRecipes"></app-pretty>
+
+    <thead *ngIf="settings.recipesTheme === 'List'">
+        <tr class="cursor-pointer">
+            <th scope="col">#</th>
+            <th scope="col" (click)="sort('title')">Title <i *ngIf="sortSetting == 'title'" class="fas fa-sort"></i></th>
+            <!-- <th scope="col" (click)="sort('instructions')">Instructions <i *ngIf="sortSetting == 'instructions'" class="fas fa-sort"></i></th> -->
+            <th scope="col" class="creator" (click)="sort('creator')">Creator <i *ngIf="sortSetting == 'creator'" class="fas fa-sort"></i></th>
+            <th scope="col" (click)="sort('created')">Created <i *ngIf="sortSetting == 'created'" class="fas fa-sort"></i></th>
+        </tr>
+    </thead>
+    <tbody *ngIf="settings.recipesTheme === 'List'">
+        <tr *ngFor="let recipe of shownRecipes">
+            <th scope="row">
+                <input class="form-check-input me-1 cursor-pointer" type="checkbox" (click)="toggleRecipeSelected(recipe)">
+            </th>
+            <td class="cursor-pointer" (click)="openRecipe(recipe)">
+                {{recipe.title}}
+            </td>
+            <!-- <td class="cursor-pointer instructions" (click)="openRecipe(recipe)">
+                {{recipe.Instructions}}
+            </td> -->
+            <td class="cursor-pointer creator" (click)="openRecipe(recipe)">
+                {{recipe.creator}}
+            </td>
+            <td class="cursor-pointer" (click)="openRecipe(recipe)">
+                {{displayDateOnly(recipe.created)}}
+            </td>
+        </tr>
+        <tr *ngIf="shownRecipes.length == 0">
+            <td colspan="12" class="text-center">
+                There are no recipes to be shown..
+            </td>
+        </tr>
+    </tbody>
+
+    <p *ngIf="loading === false && shownRecipes.length == 0" class="text-center">
+        There are no recipes to be shown..
+    </p>
+</table>

@@ -1,0 +1,63 @@
+<div class="container">
+
+    <div class="mb-3">
+        <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedRecipes.length == 0" #deleteButton>Delete</button>
+        
+        <button class="btn btn-outline-dark ms-3" type="button" routerLink="/recipes/create">Create a Recipe</button>
+    </div>
+    
+    <table class="table table-hover caption-top">
+        <caption>My recipes</caption>
+        <thead>
+            <tr class="cursor-pointer">
+                <th scope="col">#</th>
+                <th scope="col" (click)="sort('title')">Title <i *ngIf="sortSetting == 'title'" class="fas fa-sort"></i></th>
+                <th scope="col" (click)="sort('description')">Description <i *ngIf="sortSetting == 'description'" class="fas fa-sort"></i></th>
+                <th scope="col" class="creator" (click)="sort('creator')">Creator <i *ngIf="sortSetting == 'creator'" class="fas fa-sort"></i></th>
+                <th scope="col" (click)="sort('created')">Created <i *ngIf="sortSetting == 'created'" class="fas fa-sort"></i></th>
+            </tr>
+        </thead>
+        <tbody xyz="fade stagger">
+            <tr *ngFor="let recipe of recipes" class="xyz-in">
+                <th scope="row">
+                    <input class="form-check-input me-1 cursor-pointer" type="checkbox" (click)="toggleRecipeSelected(recipe)">
+                </th>
+                <td class="cursor-pointer" (click)="openRecipe(recipe)">
+                    {{recipe.title}}
+                </td>
+                <td class="cursor-pointer instructions" (click)="openRecipe(recipe)">
+                    {{recipe.description}}
+                </td>
+                <td class="cursor-pointer creator" (click)="openRecipe(recipe)">
+                    {{recipe.creator}}
+                </td>
+                <td class="cursor-pointer" (click)="openRecipe(recipe)">
+                    {{displayDateOnly(recipe.created)}}
+                </td>
+            </tr>
+            <tr *ngIf="recipes.length == 0">
+                <td colspan="12" class="text-center">
+                    There are no recipes to be shown..
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <div class="offcanvas offcanvas-bottom" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="deleteModal" aria-labelledby="deleteModalLabel" #deleteModal>
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="deleteModalLabel">
+                Delete - 
+                <small *ngFor="let id of selectedRecipes; last as isLast">
+                    {{toRecipeTitle(id)}}
+                    <small *ngIf="!isLast">, </small>
+                </small>
+                <small *ngIf="selectedRecipes.length == 0">No recipes selected</small>
+            </h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <button class="btn btn-danger me-1" type="button" (click)="deleteRecipes()" [disabled]="selectedRecipes.length == 0">Confirm</button>
+            <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
+        </div>
+    </div>
+</div>

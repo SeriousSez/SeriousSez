@@ -1,0 +1,9 @@
+footer{
+    display: none !important;
+}
+  
+@media screen and (max-device-width : 991px) {
+    footer{
+        display: none !important;
+    }
+}

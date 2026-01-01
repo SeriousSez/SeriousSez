@@ -1,0 +1,128 @@
+.instructions{
+    white-space: pre-line;
+    font-size: 14px;
+}
+
+.ingredients{
+    position: fixed;
+    min-width: 18rem;
+    max-width: 18rem;
+    top: 17.2vh;
+    left: 20vh;
+}
+
+.buttons{
+    width: 60vh;
+}
+
+.card {
+    box-shadow: 0 2px 3px rgba(0,0,0,.05);
+    border: 1px solid #eee;
+    border-radius: 3px;
+    padding: 0 !important;
+    width: 60vh;
+}
+
+.card-title {
+    margin: .5 !important;
+    font-size: 1.25rem
+}
+
+.card-body{
+    font-size: 14px;
+}
+
+.side{
+    max-height: 65vh;
+    overflow: auto;
+}
+
+.btn-white{
+    color: black; 
+    background-color: white; 
+    border-color: #ced4da;
+    /* padding: 0.30rem 0.5rem; */
+}
+
+.amount{
+    width: 25%;
+}
+
+.description{
+    min-height: 5rem;
+}
+
+@media only screen and (max-device-width : 800px) {
+    .card{
+        width: 80%;
+    }
+
+    .ingredients {
+        position: inherit;
+        max-width: none;
+        margin: 0 auto
+    }
+
+    .mobile-float{
+        float: none !important;
+        margin-right: .5rem;
+    }
+
+    .description{
+        display: none;
+    }
+}
+
+@media only screen and (min-device-width : 801px) and (max-device-width : 1020px) {
+    .card{
+        width: 90vh;
+    }
+
+    .ingredients {
+        position: inherit;
+        max-width: none;
+        margin: 0 auto
+    }
+
+    .mobile-float{
+        float: none !important;
+        margin-right: .5rem;
+    }
+
+    .description{
+        display: none;
+    }
+}
+
+@media only screen and (min-device-width : 1021px) and (max-device-width : 1350px) {
+    .card{
+        width: 100vh;
+    }
+
+    .ingredients {
+        position: inherit;
+        max-width: none;
+        margin: 0 auto;
+    }
+
+    .mobile-float{
+        float: none !important;
+        margin-right: .5rem;
+    }
+
+    .description{
+        display: none;
+    }
+}
+
+@media only screen and (min-device-width : 1351px) and (max-device-width : 1550px) {
+    .card{
+        width: 100vh;
+    }
+
+    .ingredients {
+        top: 17.2vh;
+        left: auto;
+        right: 72%;
+    }
+}

@@ -1,0 +1,17 @@
+i{
+    min-width: 1.3vh;
+}
+
+li{
+    min-width: 9.6vh;
+}
+
+.side-nav{
+    /* border-right:1px solid #cecece; */
+}
+
+@media only screen and (max-device-width : 600px) {
+    .side-nav{
+        display: none;
+    }
+}

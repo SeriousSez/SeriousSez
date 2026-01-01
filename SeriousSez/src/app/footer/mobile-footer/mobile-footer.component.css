@@ -1,0 +1,43 @@
+footer{
+    display: none !important;
+}
+
+@media screen and (max-device-width : 991px) {
+    footer{
+        display: block !important;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+    
+    .nav-item{
+        cursor: pointer;
+    }
+      
+    a, .btn-link {
+        outline: none;
+        box-shadow: none; 
+    }
+      
+    a.active, .btn-link.active {
+        /* color: #f25d9c !important; */
+        outline: none;
+        box-shadow: none; 
+    }
+      
+    .text-header{
+        color: #ffffff8c;
+    }
+
+    .scroll-down {
+        transition-duration: 0.5s;
+        transition-timing-function: ease-in;
+        transform: translate3d(0, 100%, 0);
+    }
+    
+    .scroll-up {
+        transition-duration: 0.5s;
+        transition-timing-function: ease-in;
+        transform: none;
+    }
+}

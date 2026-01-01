@@ -1,0 +1,27 @@
+.bg-white{
+    background: #fff !important;
+}
+
+.bg-brand{
+    background-color: #f25d9c !important;
+
+    &-alt{
+        background-color: #5FBAAF !important;
+    }
+
+    &-secondary{
+        background-color: #7B5C8A !important;
+    }
+
+    &-third{
+        background-color: #FFE8FF !important;
+    }
+    
+    &-white{
+        background: #fff !important;
+    }
+
+    &-transparent{
+        background-color: transparent;
+    }
+}

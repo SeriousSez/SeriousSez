@@ -1,0 +1,41 @@
+input:disabled{
+    color: #817f85;
+    border-color: #e9e9eb;
+    background: #f3f3f5;
+}
+
+.language-check{
+    display: block;
+    min-height: 1.5rem;
+    margin-bottom: 0.125rem;
+}
+
+.btn-outline-dark:hover{
+    background-color: inherit;
+    color: inherit;
+}
+
+@media only screen and (max-device-width : 1350px) {
+    .vertical-center{
+        position: inherit;
+        top: auto;
+        transform: translateY(0);
+    }
+
+    .horizontal-center{
+        width: 100vh;
+    }
+
+    .card{
+        width: 100%;
+    }
+
+    .profile{
+        max-height: 76vh;
+        overflow: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 80vh;
+    }
+}

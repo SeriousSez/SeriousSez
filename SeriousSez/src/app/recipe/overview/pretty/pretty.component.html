@@ -1,0 +1,13 @@
+<div *ngIf="recipes.length > 0" class="card-group">
+    <div *ngFor="let recipe of recipes" (click)="openRecipe(recipe)" class="card cursor-pointer hover-90 m-1">
+        <img class="card-img-top" src="{{recipe.image.url}}" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">{{recipe.title}}</h5>
+            <p class="card-text">{{ (recipe.description.length > 140) ? (recipe.description | slice:0:140) + '...' : recipe.description }}</p>
+        </div>
+        <div class="card-footer">
+            <small class="text-muted">{{recipe.creator}}</small>
+            <small class="text-muted float-end">{{utilityService.displayDateOnly(recipe.created)}}</small>
+        </div>
+    </div>
+</div>

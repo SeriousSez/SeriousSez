@@ -1,0 +1,137 @@
+input{
+    font-size: 14px;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.file-c{
+    width: 24vh;
+    height: 24vh;
+}
+
+.file{
+    -webkit-appearance: none;
+    width: 100%;
+    height: 100%;
+    color: transparent;
+    text-indent: 100em;
+    background-size: cover;
+    overflow: hidden;
+    outline: none;
+}
+
+image-cropper{
+    -webkit-appearance: none;
+    color: transparent;
+    background-size: cover;
+    overflow: hidden;
+    cursor: pointer;
+    outline: none;
+}
+
+.form{
+    width: 100%;
+    /* width: 50% !important; */
+}
+
+.amount{
+    width: 25%;
+}
+
+.card-preview{
+    min-width: 40% !important;
+}
+
+.btn-white{
+    color: black; 
+    background-color: white; 
+    border-color: #ced4da;
+    padding: 0.30rem 0.5rem;
+}
+
+.cosmetics{
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.language{
+    padding: 0.45rem .5rem;
+}
+
+.portions{
+    width: 50%;
+    float: right;
+}
+
+.ingredients{
+    border-top: 0;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.dropdown-toggle{
+    min-width: 10vh;
+    max-width: 10vh;
+}
+
+.NgxEditor__MenuBar{
+    max-width: 12vh;
+    width: 12vh;
+}
+
+@media only screen and (max-device-width : 600px) {
+    .horizontal-center {
+        float: none !important;
+    }
+
+    .mobile-float{
+        float: none !important;
+        margin-right: .5rem;
+    }
+
+    .description{
+        display: none;
+    }
+
+    .mobile{
+        display: none;
+    }
+
+    .form{
+        width: 100% !important;
+    }
+ }
+
+ @media only screen and (max-device-width : 1350px) {
+    .card{
+        width: 100%;
+    }
+
+    .float-start{
+        float: none !important;
+    }
+
+    .horizontal-center{
+        width: 100% !important;
+    }
+
+    .file{
+        width: 100%;
+        height: 100%;
+    }
+
+    .dropdown-toggle{
+        max-width: 55%;
+    }
+
+    .mobile{
+        display: none;
+    }
+
+    .form{
+        width: 100% !important;
+    }
+ }

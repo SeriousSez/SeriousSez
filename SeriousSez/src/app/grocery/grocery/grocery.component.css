@@ -1,0 +1,28 @@
+@media screen and (min-device-width : 601px) {
+    .computer{
+        display: block;
+    }
+
+    .mobile{
+        display: none;
+    }
+}
+
+@media screen and (max-device-width : 600px) {
+    .computer{
+        display: none;
+    }
+
+    .mobile{
+        display: block;
+    }
+
+    td{
+        text-overflow: ellipsis;
+    }
+
+    span{
+        float: left !important;
+        margin-top: .5rem;
+    }
+}

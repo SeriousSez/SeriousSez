@@ -1,0 +1,13 @@
+i{
+    min-width: 1.3vh;
+}
+
+li{
+    min-width: 9.6vh;
+}
+/* 
+@media screen and (max-device-width : 600px) {
+    .container{
+        font-size: 8px;
+    }
+} */

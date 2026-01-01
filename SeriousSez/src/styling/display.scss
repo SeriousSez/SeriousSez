@@ -1,0 +1,57 @@
+.d{
+    &-none{
+        display:none;
+    }
+
+    &-b{
+        display:block;
+    }
+    
+    &-c{
+        display:contents;
+    }
+    
+    &-f{
+        display:flex;
+    }
+    
+    &-fb{
+        display:flexbox;
+    }
+    
+    &-g{
+        display:grid;
+    }
+    
+    &-i{
+        display:inline;
+    }
+    
+    &-ib{
+        display:inline-block;
+    }
+    
+    &-if{
+        display:inline-flex;
+    }
+    
+    &-ifb{
+        display:inline-flexbox;
+    }
+    
+    &-it{
+        display:inline-table;
+    }
+    
+    &-t{
+        display:table;
+    }
+    
+    &-tc{
+        display:table-cell;
+    }
+    
+    &-tcl{
+        display:table-column;
+    }
+}

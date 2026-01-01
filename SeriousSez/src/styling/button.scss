@@ -1,0 +1,100 @@
+.btn-brand{
+    color: #fff !important;
+    background-color: #f25d9c !important;
+    border-color: #f25d9c !important;
+    
+    &-alt{
+        color: #fff !important;
+        background-color: #5FBAAF !important;
+        border-color: #5FBAAF !important;
+    }
+
+    &-secondary{
+        color: #fff !important;
+        background-color: #7B5C8A !important;
+        border-color: #7B5C8A !important;
+    }
+
+    &-third{
+        color: #000 !important;
+        background-color: #FFE8FF !important;
+        border-color: #FFE8FF !important;
+    }
+    
+    &-white{
+        color: #000 !important;
+        background-color: #fff !important;
+        border-color: #fff !important;
+    }
+
+    &-transparent{
+        border-color: transparent !important;
+        background-color: transparent !important;
+    }
+}
+
+.btn-outline-brand{
+    color: #f25d9c !important;
+    border-color: #f25d9c !important;
+    background-color: transparent !important;
+
+    &-alt{
+        color: #5FBAAF !important;
+        border-color: #5FBAAF !important;
+        background-color: transparent !important;
+    }
+
+    &-secondary{
+        color: #7B5C8A !important;
+        border-color: #7B5C8A !important;
+        background-color: transparent !important;
+    }
+
+    &-third{
+        color: #FFE8FF !important;
+        border-color: #FFE8FF !important;
+        background-color: transparent !important;
+    }
+    
+    &-white{
+        color: #fff !important;
+        border-color: #fff !important;
+        background-color: transparent !important;
+    }
+
+    &-transparent{
+        color: transparent !important;
+        border-color: transparent !important;
+        background-color: transparent !important;
+    }
+}
+
+.btn-link-brand{
+    font-weight: 400;
+    color: #f25d9c !important;
+    text-decoration: underline;
+
+    &-alt{
+        font-weight: 400;
+        color: #5FBAAF !important;
+        text-decoration: underline;
+    }
+
+    &-secondary{
+        font-weight: 400;
+        color: #7B5C8A !important;
+        text-decoration: underline;
+    }
+
+    &-third{
+        font-weight: 400;
+        color: #FFE8FF !important;
+        text-decoration: underline;
+    }
+    
+    &-white{
+        font-weight: 400;
+        color: #fff !important;
+        text-decoration: underline;
+    }
+}

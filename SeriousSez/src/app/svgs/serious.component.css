@@ -1,0 +1,9 @@
+svg{
+    height: inherit;
+    width: inherit;
+    margin-right: inherit;
+}
+
+path{
+    fill: #f25d9c;
+}

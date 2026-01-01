@@ -1,0 +1,93 @@
+.nav-item{
+  cursor: pointer;
+}
+
+a, .btn-link {
+  outline: none;
+  box-shadow: none; 
+}
+
+a.active, .btn-link.active {
+  color: #f25d9c !important;
+  outline: none;
+  box-shadow: none; 
+}
+
+.dropdown-item.active{
+  background-color: #f25d9c;
+  color: white !important;
+}
+
+.text-header{
+    color: #ffffff8c;
+}
+
+.head{
+    font-size: 1.2rem;
+}
+
+@media screen and (max-device-width : 991px) {
+  .nav-toggle-label {
+    display: none;
+  }
+
+  header {
+    display: none !important;
+    display: grid;
+    grid-template-columns: 1fr auto minmax(600px, 3fr) 1fr;
+  }
+  
+  .logo {
+    grid-column: 2 / 3;
+  }
+  
+  nav {
+    // all: unset; /* this causes issues with Edge, since it's unsupported */
+    
+    /* the following lines are not from my video, but add Edge support */
+    position: relative;
+    text-align: left;
+    transition: none;
+    transform: scale(1,1);
+    background: none;
+    top: initial;
+    left: initial;
+    /* end Edge support stuff */
+    
+    grid-column: 3 / 4;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  
+  nav ul {
+    display: flex;
+  }
+  
+  nav li {
+    margin-left: 3em;
+    margin-bottom: 0;
+  }
+  
+  nav a {
+    opacity: 1;
+    position: relative;
+  }
+  
+  nav a::before {
+    content: '';
+    display: block;
+    height: 5px;
+    background: black;
+    position: absolute;
+    top: -.75em;
+    left: 0;
+    right: 0;
+    transform: scale(0, 1);
+    transition: transform ease-in-out 250ms;
+  }
+  
+  nav a:hover::before {
+    transform: scale(1,1);
+  }
+}

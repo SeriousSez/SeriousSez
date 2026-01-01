@@ -1,0 +1,20 @@
+.offcanvas{
+    height: 15vh;
+}
+
+.offcanvas-header{
+    padding: 0.5rem 1rem;
+}
+
+.offcanvas-title{
+    line-height: 0.5;
+}
+
+.tr{
+    border-color: #dee2e6;
+    border-bottom-color: #dee2e6 !important;
+}
+
+.clickable:not(.collapsed){
+    background-color: #e7f1ff;
+}

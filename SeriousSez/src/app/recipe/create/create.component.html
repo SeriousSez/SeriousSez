@@ -1,0 +1,285 @@
+<div class="w-100 d-f">
+	<div class="float-start form">
+        <div class="card">
+            
+            <div class="card-header bg-white mb-3">
+                <h4 class="card-title">Create Recipe</h4>
+            </div>
+            
+            <div class="card-block">
+                <div class="accordion" id="accordion">
+                    <form (ngSubmit)="create(recipeForm)" [formGroup]="recipeForm">
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingHead">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHead" aria-expanded="true" aria-controls="collapseHead">
+                                    Head
+                                    <!-- <i *ngIf="f.title.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
+                                </button>
+                            </h2>
+                            <div id="collapseHead" class="accordion-collapse collapse show" aria-labelledby="headingHead" data-bs-parent="#accordion">
+                                <div class="accordion-body">
+                                    <div class="form-group">
+                                        <label for="title">Title</label>
+                                        <input id="title" type="text" name="title" class="form-control" [ngClass]="{ 'is-invalid': f.title.touched && f.title.errors }" placeholder="Recipe title" autocomplete="off" data-lpignore="true" formControlName="title">
+                                        <div *ngIf="f.title.touched && f.title.errors" class="invalid-feedback">
+                                            <div *ngIf="f.title.errors.required">Title is required</div>
+                                        </div>
+                                    </div>
+                    
+                                    <div class="form-group">
+                                        <label for="image-caption">Image Caption</label>
+                                        <input id="image-caption" type="text" name="imageCaption" class="form-control" [ngClass]="{ 'is-invalid': f.imageCaption.touched && f.imageCaption.errors }" placeholder="Image Caption" autocomplete="off" data-lpignore="true" formControlName="imageCaption">
+                                        <!-- <div *ngIf="f.imageCaption.touched && f.imageCaption.errors" class="invalid-feedback">
+                                            <div *ngIf="f.imageCaption.errors.required">Caption is required</div>
+                                        </div> -->
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <img *ngIf="!showCropOverlay" class="file image" [src]="defaultImageUrl">
+                                        <image-cropper
+                                            *ngIf="showCropOverlay"
+                                            class="image"
+                                            [imageChangedEvent]="imageChangedEvent"
+                                            [maintainAspectRatio]="false"
+                                            [aspectRatio]="10 / 10"
+                                            format="png"
+                                            (imageCropped)="imageCropped($event)"
+                                            (imageLoaded)="imageLoaded()"
+                                            (cropperReady)="cropperReady()"
+                                            (loadImageFailed)="loadImageFailed()">
+                                        </image-cropper>
+                                        <input type="file" #image accept="image/*" (change)="handleFileInput($event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingBody">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBody" aria-expanded="false" aria-controls="collapseBody">
+                                    Body
+                                    <!-- <i *ngIf="f.instructions.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
+                                </button>
+                            </h2>
+                            <div id="collapseBody" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
+                                <div class="accordion-body">
+                                    <div class="form-group">
+                                        <label for="instructions">Instructions</label>
+                                        <ckeditor #editor id="editor" formControlName="instructions"></ckeditor>
+                                        <!-- <angular-editor [placeholder]="'Enter text here...'" formControlName="instructions"></angular-editor> -->
+                                        <!-- <textarea id="instructions" type="text" name="instructions" class="form-control" [ngClass]="{ 'is-invalid': f.instructions.touched && f.instructions.errors }" placeholder="Instructions to the recipe" formControlName="instructions"></textarea> -->
+                                        <div *ngIf="f.instructions.touched && f.instructions.errors" class="invalid-feedback">
+                                            <div *ngIf="f.instructions.errors.required">Instructions are required</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item cosmetics">
+                            <h2 class="accordion-header" id="headingCosmetics">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCosmetics" aria-expanded="false" aria-controls="collapseCosmetics">
+                                    Settings
+                                    <!-- <i *ngIf="f.instructions.errors" class="fas fa-exclamation-circle ms-2 text-warning"></i> -->
+                                </button>
+                            </h2>
+                            <div id="collapseCosmetics" class="accordion-collapse collapse" aria-labelledby="headingBody" data-bs-parent="#accordion">
+                                <div class="accordion-body">
+                                    <div class="form-group">
+                                        <label for="card-caption">Card Description</label>
+                                        <input id="card-caption" type="text" name="description" class="form-control" [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }" placeholder="Card Description" autocomplete="off" data-lpignore="true" formControlName="description">
+                                        <div *ngIf="f.description.touched && f.description.errors" class="invalid-feedback">
+                                            <div *ngIf="f.description.errors.required">Description is required</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="language" class="w-50">Language</label>
+                                        <label for="language" class="w-50">Portions</label>
+
+                                        <select class="btn btn-white btn-sm language" name="language" formControlName="language">
+                                            <option class="select-items" *ngFor="let language of languages" [ngValue]="language">{{language}}</option>
+                                        </select>
+                                        <input id="card-caption" type="text" name="portions" class="form-control portions" [ngClass]="{ 'is-invalid': f.portions.touched && f.portions.errors }" placeholder="Recipe Portions" autocomplete="off" data-lpignore="true" formControlName="portions">
+                                        <div *ngIf="f.portions.touched && f.portions.errors" class="invalid-feedback">
+                                            <div *ngIf="f.portions.errors.required">Description is required</div>
+                                        </div>
+                                        <!-- <input id="image-caption" type="text" name="language" class="form-control" [ngClass]="{ 'is-invalid': f.language.touched && f.language.errors }" placeholder="Card Description" autocomplete="off" data-lpignore="true" formControlName="description">
+                                        <div *ngIf="f.description.touched && f.description.errors" class="invalid-feedback">
+                                            <div *ngIf="f.description.errors.required">Description is required</div>
+                                        </div> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="accordion-item ingredients">
+                        <h2 class="accordion-header" id="headingIngredients">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIngredients" aria-expanded="false" aria-controls="collapseIngredients">
+                                Ingredients
+                            </button>
+                        </h2>
+                        <div id="collapseIngredients" class="accordion-collapse collapse" aria-labelledby="headingIngredients" data-bs-parent="#accordion">
+                            <div class="accordion-body">
+                                <table class="table table-hover caption-top">
+                                    <caption>
+                                        Ingredients
+                                        <div class="form-group d-inline-block float-end ms-3 mobile-float">
+                                            <button type="submit" class="btn btn-outline-primary btn-sm" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient($event)">Add ingredient</button>
+                                        </div>
+                                        <div class="form-group d-inline-block float-end mobile-float">
+                                            <th scope="col" class="d-inline">Pick existing - </th>
+                                            <select class="btn btn-white btn-sm dropdown-toggle" name="ingredient" [(ngModel)]="newIngredient" (ngModelChange)="addToNewIngredient($event)" #select>
+                                                <option class="select-items" *ngFor="let ingredient of ingredients" [ngValue]="ingredient">{{ingredient.name}}</option>
+                                            </select>
+                                        </div>
+                                    </caption>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Ingredient</th>
+                                            <th scope="col" class="amount">Amount</th>
+                                            <th scope="col">Measurement</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <input type="text" class="form-control" placeholder="Name" [(ngModel)]="newIngredient.name" autocomplete="off" data-lpignore="true" required="required">
+                                            </td>
+                                            <td>
+                                                <input type="number" step="any" class="form-control me-2" placeholder="Amount" [(ngModel)]="newIngredient.amount" autocomplete="off" data-lpignore="true" required="required">
+                                            </td>
+                                            <td>
+                                                <select class="btn btn-white btn-sm dropdown-toggle" name="measurement" [(ngModel)]="newIngredient.amountType" #select>
+                                                    <option class="select-items" *ngFor="let measurement of measurements" [ngValue]="measurement">{{measurement}}</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tbody>
+                                        <tr *ngFor="let ingredient of newIngredients">
+                                            <td>
+                                                {{ingredient.name}}
+                                            </td>
+                                            <td>
+                                                {{ingredient.amount}}
+                                                {{ingredient.amountType}}
+                                            </td>
+                                            <td>
+                                                <button type="submit" class="btn btn-link btn-sm" (click)="removeIngredient(ingredient)">Remove</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <div class="form-group d-inline-block">
+                <button type="submit" class="btn btn-primary" [disabled]="recipeForm?.invalid || isRequesting" (click)="create(recipeForm)">
+                    <app-spinner *ngIf="isRequesting" [color]="'#fff'" [small]="true"></app-spinner>
+                    <span *ngIf="isRequesting === false">Create</span>
+                </button>
+            </div>
+            
+            <div *ngIf="errors" class="alert alert-danger d-inline-block float-end" role="alert">
+                <strong>Oops!</strong> {{errors}}
+            </div>            
+        </div>
+    </div>
+
+    <div class="mx-2"></div>
+
+    <div class="w-50 card-preview mobile">
+        <div class="card">
+            <div class="btn-group float-end" role="group" aria-label="Basic outlined example">
+                <button type="button" [ngClass]="recipePreview ? 'active' : ''" class="btn btn-outline-primary btn-sm" (click)="toRecipePreview()">Recipe Preview</button>
+                <button type="button" [ngClass]="recipePreview ? '' : 'active'" class="btn btn-outline-primary btn-sm" (click)="toCardPreview()">Card Preview</button>
+            </div>
+
+            <hr/>
+
+            <article *ngIf="recipePreview === true" class="m-3">
+                <header class="mb-2">
+                    <h2>{{recipeForm.get('title')?.value.length > 0 ? recipeForm.get('title')?.value : 'Bad Example'}}</h2>
+
+                    <div> 
+                        <span class="post-meta-author">
+                            <span>By </span> 
+                            <a class="tw-text-strong hover_tw-no-underline" href="">{{userService.getUserName()}}</a>
+                        </span>
+                        <time class="post-meta-date"> - <i>{{utilityService.getCurrentDateAsDateOnly()}}</i></time>
+                    </div>
+                </header>
+
+                <figure class="figure w-100">
+                    <img [src]="imageUrl == defaultImageUrl ? '../../assets/images/spices.jpg' : imageUrl" class="figure-img img-fluid rounded w-100" [alt]="recipeForm.get('imageCaption')?.value">
+                    <figcaption class="figure-caption">{{recipeForm.get('imageCaption')?.value}}</figcaption>
+                </figure>
+                <div>
+                    <div>
+                        <header>
+                            <h3>Instructions</h3>
+                        </header>
+                        <div *ngIf="recipeForm.get('instructions')?.value.length == 0" class="list-group list-group-flush instructions" [innerHTML]="utilityService.transformToSafeHtml(fakeInstructions)"></div>
+                        <div *ngIf="recipeForm.get('instructions')?.value.length > 0" class="list-group list-group-flush instructions" [innerHTML]="utilityService.transformToSafeHtml(recipeForm.get('instructions')?.value)"></div>
+                    </div>
+                    <!-- POSSIBLE TAG PLACEMENT -->
+                    <!-- <div class="post-tags tw-flex tw-flex-wrap tw-mt-6 tw--mb-2"><a
+                            href="https://stein.rifki.net/stein/tag/creativity/" rel="tag">Creativity</a><a
+                            href="https://stein.rifki.net/stein/tag/health/" rel="tag">Health</a><a
+                            href="https://stein.rifki.net/stein/tag/world/" rel="tag">World</a></div> -->
+                </div>
+
+                <!-- POSSIBLE FOOTER -->
+                <footer>
+                    <!-- <div class="tw-flex-1"> <a class="comments-count tw-text-strong hover_tw-no-underline"
+                            href="https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/#comments"><i
+                                class="comments-count-icon si si-comment tw-mr-1"></i><span
+                                class="comments-count-number">2</span> <span
+                                class="comments-count-label tw-hidden md_tw-inline">comments</span></a> <span
+                            class="views-count tw-text-strong tw-ml-3"><i
+                                class="views-count-icon si si-stats tw-mr-1"></i><span
+                                class="views-count-number">6.9K</span> <span
+                                class="views-count-label tw-hidden md_tw-inline">views</span></span></div>
+                    <ul class="post-share tw-list-reset tw-flex tw-items-center tw--mx-3 md_tw--mx-3">
+                        <li class="tw-px-3 md_tw-px-3 tw-hidden md_tw-block"> Share:</li>
+                        <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                                href="https://www.facebook.com/sharer/sharer.php?u=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;t=Few Facts About Streaming and Music Creation"
+                                target="_blank" title="Facebook"><i class="si si-facebook"></i></a></li>
+                        <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                                href="https://twitter.com/intent/tweet?url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;text=Few Facts About Streaming and Music Creation"
+                                target="_blank" title="Twitter"><i class="si si-twitter"></i></a></li>
+                        <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                                href="https://www.linkedin.com/shareArticle?mini=1&amp;url=https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/&amp;title=Few Facts About Streaming and Music Creation"
+                                target="_blank" title="Linkedin"><i class="si si-linkedin"></i></a></li>
+                        <li class="tw-px-3 md_tw-px-3"> <a class="tw-text-base tw-text-strong hover_tw-no-underline"
+                                href="mailto:?subject=Few Facts About Streaming and Music Creation&amp;body=Check out this article: https://stein.rifki.net/stein/2019/04/29/few-facts-about-streaming-and-music-creation/"
+                                target="_blank" title="Email"><i class="si si-envelope"></i></a></li>
+                    </ul> -->
+                </footer>
+            </article>
+
+            <div *ngIf="recipePreview === false" class="card-group">
+                <div class="card cursor-pointer hover-90 m-1">
+                    <img class="card-img-top" [src]="imageUrl == defaultImageUrl ? '../../assets/images/spices.jpg' : imageUrl" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">{{recipeForm.get('title')?.value.length > 0 ? recipeForm.get('title')?.value : 'Bad Example'}}</h5>
+                        <p *ngIf="recipeForm.get('description')?.value.length > 0" class="card-text">{{ recipeForm.get('description')?.value.length > 140 ? (recipeForm.get('description')?.value | slice:0:140) + '...' : recipeForm.get('description')?.value }}</p>
+                        <p *ngIf="recipeForm.get('description')?.value.length == 0" class="card-text">{{ fakeDescription.length > 140 ? (fakeDescription | slice:0:140) + '...' : fakeDescription }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">{{userService.getUserName()}}</small>
+                        <small class="text-muted float-end">{{utilityService.getCurrentDateAsDateOnly()}}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

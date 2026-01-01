@@ -1,0 +1,27 @@
+/* EXTERNAL FILES */
+@import "~bootstrap/dist/css/bootstrap.css";
+
+html{
+  height: 100%;
+}
+
+body{
+  height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 1vh;
+  background-color: whitesmoke;
+  border-color: black;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: lightgrey; 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: gray; 
+}

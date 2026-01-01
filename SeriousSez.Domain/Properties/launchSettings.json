@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SeriousSez.Domain": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "Key": "Value"
+      }
+    }
+  }
+}

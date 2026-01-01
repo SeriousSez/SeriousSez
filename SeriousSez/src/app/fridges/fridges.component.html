@@ -1,0 +1,24 @@
+<div class="container" *ngIf="!loading">
+    <!-- <caption>Characters</caption> -->
+    <table class="table">
+        <p>
+            List of Fridges ({{fridges.length}})
+
+            <span>
+                <!-- <button class="main-sm" type="button" (click)="createTestUser()">Create Test User</button> -->
+                <!-- <button class="transparent-sm" type="button" routerLinkActive="active" routerLink="/create">Create Character</button> -->
+            </span>
+        </p>
+
+        <div class="card-group" id="dropzone">
+            <div class="card-body" *ngFor="let fridge of fridges">
+                {{fridge.name}} ({{fridge.groceries.length}})
+
+                <div *ngFor="let grocery of fridge.groceries">
+                    {{grocery.name}} - purchased: {{displayDateOnly(grocery.purchaseDate)}}
+                    <p>Expires: {{displayDateOnly(grocery.expirationDate)}}</p>
+                </div>
+            </div>
+        </div>
+    </table>
+</div>

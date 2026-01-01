@@ -1,0 +1,29 @@
+.offcanvas{
+    height: 15vh;
+}
+
+.offcanvas-header{
+    padding: 0.5rem 1rem;
+}
+
+.offcanvas-title{
+    line-height: 0.5;
+}
+
+.dropdown-menu{
+    margin-top: -2px !important;
+    padding: .4rem 0;
+}
+
+.instructions{
+    max-width: 20vh;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+@media only screen and (max-device-width : 600px) {
+    .creator {
+        display: none;
+    }
+ }
