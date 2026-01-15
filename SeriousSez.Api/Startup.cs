@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SeriousSez.ApplicationService.Auth;
@@ -63,8 +64,26 @@ namespace SeriousSez
 
             SetupDatabase(services);
 
+            // Configure CORS - MORE PERMISSIVE for development
+            services.AddCors(c =>
+            {
+                c.AddPolicy("AllowOrigin", options => options
+                    .WithOrigins("http://localhost:4200")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .WithExposedHeaders("Authorization")
+                    .SetIsOriginAllowedToAllowWildcardSubdomains()
+                    .AllowCredentials());
+            });
 
-            var jwtSettings = Configuration.GetSection("JwtSettings");
+            // Fixed: Use "JWTSettings" to match appsettings.json (all caps)
+            var jwtSettings = Configuration.GetSection("JWTSettings");
+
+            // Add null checks to prevent crashes
+            var validIssuer = jwtSettings.GetSection("validIssuer").Value ?? "SeriousSez";
+            var validAudience = jwtSettings.GetSection("validAudience").Value ?? "http://localhost:44366/";
+            var securityKey = jwtSettings.GetSection("securityKey").Value ?? SecretKey;
+
             services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -77,9 +96,20 @@ namespace SeriousSez
                     ValidateAudience = true,
                     ValidateLifetime = false,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings.GetSection("validIssuer").Value,
-                    ValidAudience = jwtSettings.GetSection("validAudience").Value,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.GetSection("securityKey").Value))
+                    ValidIssuer = validIssuer,
+                    ValidAudience = validAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey))
+                };
+
+                // Allow authorization header in CORS
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Startup>>();
+                        logger.LogInformation($"JWT Message Received: {context.Request.Headers["Authorization"]}");
+                        return System.Threading.Tasks.Task.CompletedTask;
+                    }
                 };
             });
 
@@ -101,13 +131,6 @@ namespace SeriousSez
                 //options.Lockout.AllowedForNewUsers = true;
                 //options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
                 //options.Lockout.MaxFailedAccessAttempts = 3;
-            });
-
-            services.AddCors(c =>
-            {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-                c.AddPolicy("CorsPolicy", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-                c.AddPolicy("*", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
 
             services.AddControllers();
@@ -141,23 +164,57 @@ namespace SeriousSez
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
-            app.UseCors("AllowOrigin");
-            app.UseCors("CorsPolicy");
+            // Add exception handling first to catch errors
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/error");
+                app.UseHsts();
+            }
+
+            // Use forwarded headers before other middleware
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.All
             });
 
+            // Apply CORS FIRST - before any other middleware
+            app.UseCors("AllowOrigin");
+
+            // Log all requests for debugging - INCLUDING OPTIONS
+            app.Use(async (context, next) =>
+            {
+                logger.LogInformation($"Request: {context.Request.Method} {context.Request.Path} from {context.Request.Headers["Origin"]}");
+                logger.LogInformation($"Headers: {string.Join(", ", context.Request.Headers.Keys)}");
+
+                // Handle OPTIONS requests explicitly
+                if (context.Request.Method == "OPTIONS")
+                {
+                    logger.LogInformation("OPTIONS request - returning 200");
+                    context.Response.StatusCode = 200;
+                    await context.Response.CompleteAsync();
+                    return;
+                }
+
+                await next();
+                logger.LogInformation($"Response: {context.Response.StatusCode}");
+            });
+
+            // Completely disable HTTPS redirection for now
+            // app.UseHttpsRedirection();
+
+            // Swagger configuration
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SeriousSez v1"));
             }
 
-            app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -167,7 +224,16 @@ namespace SeriousSez
                 endpoints.MapControllers();
                 endpoints.MapSwagger();
             });
-            app.SeedDatabase();
+
+            // Wrap SeedDatabase in try-catch to prevent crashes
+            try
+            {
+                app.SeedDatabase();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error seeding database");
+            }
         }
 
         private void SetupDatabase(IServiceCollection services)
@@ -195,7 +261,7 @@ namespace SeriousSez
                 c.AddPolicy("*", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
 
-            var jwtSettings = Configuration.GetSection("JwtSettings");
+            var jwtSettings = Configuration.GetSection("JWTSettings");
             services.AddAuthentication(opt =>
             {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

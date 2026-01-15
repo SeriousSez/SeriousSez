@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
-  selector: 'app-list-overlay',
-  templateUrl: './list.overlay.html',
-  styleUrls: ['./list.overlay.css']
+    selector: 'app-list-overlay',
+    templateUrl: './list.overlay.html',
+    styleUrls: ['./list.overlay.css'],
+    standalone: false
 })
 export class ListOverlay implements OnInit {
 

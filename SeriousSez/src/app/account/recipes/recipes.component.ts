@@ -6,9 +6,10 @@ import { Recipe } from 'src/app/recipe/models/recipe.interface';
 import { RecipeService } from 'src/app/recipe/services/recipe.service';
 
 @Component({
-  selector: 'app-recipes',
-  templateUrl: './recipes.component.html',
-  styleUrls: ['./recipes.component.css']
+    selector: 'app-recipes',
+    templateUrl: './recipes.component.html',
+    styleUrls: ['./recipes.component.css'],
+    standalone: false
 })
 export class RecipesComponent implements OnInit {
   @ViewChild('recipeModal') private recipeModal: ElementRef;

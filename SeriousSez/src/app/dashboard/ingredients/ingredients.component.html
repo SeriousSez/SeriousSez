@@ -1,65 +1,83 @@
 <div class="button-group mb-3">
-	<button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedIngredients.length == 0" #deleteButton>Delete</button>
-	
-	<button class="btn btn-outline-dark ms-3" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal">Create an Ingredient</button>
+  <button class="btn btn-danger" type="button" data-bs-toggle="offcanvas" data-bs-target="#deleteModal" aria-controls="deleteModal" [disabled]="selectedIngredients.length == 0" #deleteButton>Delete</button>
+
+  <button class="btn btn-outline-dark ms-3" type="button" data-bs-toggle="modal" data-bs-target="#ingredientModal">Create an Ingredient</button>
 </div>
 
 <table class="table table-hover caption-top">
-	<caption>List of ingredients</caption>
-	<thead>
-	  <tr>
-		<th scope="col">#</th>
-		<th scope="col" class="cursor-pointer" (click)="sort('name')">Ingredient <i *ngIf="sortSetting == 'name'" class="fas fa-sort"></i></th>
-		<th scope="col" class="cursor-pointer" (click)="sort('created')">Created <i *ngIf="sortSetting == 'created'" class="fas fa-sort"></i></th>
-	  </tr>
-	</thead>
-	<tbody *ngFor="let ingredient of ingredients; let i = index">
-		<tr id="table-row{{i}}" tabindex="1" class="clickable collapsed">
-			<th scope="row">
-				<input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" (click)="toggleIngredientSelected(ingredient)">
-			</th>
-			<td class="cursor-pointer" (click)="toggleAccordion('accordion' + i, 'table-row' + i)">
-				{{ingredient.name}}
-			</td>
-			<td class="cursor-pointer" (click)="toggleAccordion('accordion' + i, 'table-row' + i)">
-				{{displayDateOnly(ingredient.created)}}
-			</td>
-		</tr>
-		<tr>
-            <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr">
-				<img *ngIf="!ingredient.image" class="col-3 figure-img img-fluid rounded" src="assets/images/milk.jpg">
-				<img *ngIf="ingredient.image" [src]="ingredient.image.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image.caption">
-				<div class="col-9 list-group list-group-flush float-end ps-3"><h5>Description</h5>{{ingredient.description}}</div>
-            </td>
-		</tr>
-	</tbody>
+  <caption>List of ingredients</caption>
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col" class="cursor-pointer" (click)="sort('name')">Ingredient @if (sortSetting == 'name') {
+        <i class="fas fa-sort"></i>
+      }</th>
+      <th scope="col" class="cursor-pointer" (click)="sort('created')">Created @if (sortSetting == 'created') {
+        <i class="fas fa-sort"></i>
+      }</th>
+    </tr>
+  </thead>
+  @for (ingredient of ingredients; track ingredient; let i = $index) {
+    <tbody>
+      <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed">
+        <th scope="row">
+          <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" (click)="toggleIngredientSelected(ingredient)">
+        </th>
+        <td class="cursor-pointer" (click)="toggleAccordion('accordion' + i, 'table-row' + i)">
+          {{ingredient.name}}
+        </td>
+        <td class="cursor-pointer" (click)="toggleAccordion('accordion' + i, 'table-row' + i)">
+          {{displayDateOnly(ingredient.created)}}
+        </td>
+      </tr>
+      <tr>
+        <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr">
+          @if (!ingredient.image) {
+            <img class="col-3 figure-img img-fluid rounded" src="assets/images/milk.jpg">
+          }
+          @if (ingredient.image) {
+            <img [src]="ingredient.image.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image.caption">
+          }
+          <div class="col-9 list-group list-group-flush float-end ps-3"><h5>Description</h5>{{ingredient.description}}</div>
+        </td>
+      </tr>
+    </tbody>
+  }
 </table>
 
 <div class="offcanvas offcanvas-bottom" data-bs-scroll="true" data-bs-backdrop="false" tabindex="-1" id="deleteModal" aria-labelledby="deleteModalLabel" #deleteModal>
-	<div class="offcanvas-header">
-		<h5 class="offcanvas-title" id="deleteModalLabel">
-			Delete - 
-			<small *ngFor="let ingredient of selectedIngredients; last as isLast">
-				{{ingredient.name}}
-				<small *ngIf="!isLast">, </small>
-			</small>
-			<small *ngIf="selectedIngredients.length == 0">No ingredients selected</small>
-		</h5>
-		<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-	</div>
-	<div class="offcanvas-body">
-		<button class="btn btn-danger me-1" type="button" (click)="deleteIngredients()" [disabled]="selectedIngredients.length == 0">Confirm</button>
-		<button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
-	</div>
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="deleteModalLabel">
+      Delete -
+      @for (ingredient of selectedIngredients; track ingredient; let isLast = $last) {
+        <small>
+          {{ingredient.name}}
+          @if (!isLast) {
+            <small>, </small>
+          }
+        </small>
+      }
+      @if (selectedIngredients.length == 0) {
+        <small>No ingredients selected</small>
+      }
+    </h5>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <button class="btn btn-danger me-1" type="button" (click)="deleteIngredients()" [disabled]="selectedIngredients.length == 0">Confirm</button>
+    <button class="btn btn-link text-reset" type="button" data-bs-dismiss="offcanvas" aria-label="Close">Cancel</button>
+  </div>
 </div>
 
 <!-- Modal -->
 <div class="modal fade" id="ingredientModal" tabindex="-1" aria-labelledby="ingredientModalLabel" aria-hidden="true" #ingredientModal>
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-body" #container>
-				<app-ingredient-modal *ngIf="ingredients" [ingredients]="ingredients" (finish)="closeIngredientModal($event)"></app-ingredient-modal>
-			</div>
-		</div>
-	</div>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body" #container>
+        @if (ingredients) {
+          <app-ingredient-modal [ingredients]="ingredients" (finish)="closeIngredientModal($event)"></app-ingredient-modal>
+        }
+      </div>
+    </div>
+  </div>
 </div>

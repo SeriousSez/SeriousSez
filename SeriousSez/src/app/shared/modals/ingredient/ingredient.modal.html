@@ -1,61 +1,74 @@
 <div class="card">
 
-    <div class="card-header bg-white mb-3">
-        <h4 class="card-title">Ingredients</h4>
+  <div class="card-header bg-white mb-3">
+    <h4 class="card-title">Ingredients</h4>
+  </div>
+
+  <div class="card-block">
+
+    <form (ngSubmit)="create(ingredientForm)" [formGroup]="ingredientForm">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input id="name" type="text" name="name" class="form-control" [ngClass]="{ 'is-invalid': f.name.touched && f.name.errors }" placeholder="Ingredient name" formControlName="name">
+        @if (f.name.touched && f.name.errors) {
+          <div class="invalid-feedback">
+            @if (f.name.errors.required) {
+              <div>Name is required</div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <input id="description" type="text" name="description" class="form-control" [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }" placeholder="Your first name" formControlName="description">
+        @if (f.description.touched && f.description.errors) {
+          <div class="invalid-feedback">
+            @if (f.description.errors.required) {
+              <div>Description is required</div>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="image-caption">Image Caption</label>
+        <input id="image-caption" type="text" name="imageCaption" class="form-control" [ngClass]="{ 'is-invalid': f.imageCaption.touched && f.imageCaption.errors }" placeholder="Image Caption" autocomplete="off" data-lpignore="true" formControlName="imageCaption">
+        <!-- <div *ngIf="f.imageCaption.touched && f.imageCaption.errors" class="invalid-feedback">
+        <div *ngIf="f.imageCaption.errors.required">Caption is required</div>
+      </div> -->
     </div>
 
-    <div class="card-block">
-
-        <form (ngSubmit)="create(ingredientForm)" [formGroup]="ingredientForm">
-            <div class="form-group">
-                <label for="name">Name</label>
-                <input id="name" type="text" name="name" class="form-control" [ngClass]="{ 'is-invalid': f.name.touched && f.name.errors }" placeholder="Ingredient name" formControlName="name">
-                <div *ngIf="f.name.touched && f.name.errors" class="invalid-feedback">
-                    <div *ngIf="f.name.errors.required">Name is required</div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="description">Description</label>
-                <input id="description" type="text" name="description" class="form-control" [ngClass]="{ 'is-invalid': f.description.touched && f.description.errors }" placeholder="Your first name" formControlName="description">
-                <div *ngIf="f.description.touched && f.description.errors" class="invalid-feedback">
-                    <div *ngIf="f.description.errors.required">Description is required</div>
-                </div>
-            </div>
-                    
-            <div class="form-group">
-                <label for="image-caption">Image Caption</label>
-                <input id="image-caption" type="text" name="imageCaption" class="form-control" [ngClass]="{ 'is-invalid': f.imageCaption.touched && f.imageCaption.errors }" placeholder="Image Caption" autocomplete="off" data-lpignore="true" formControlName="imageCaption">
-                <!-- <div *ngIf="f.imageCaption.touched && f.imageCaption.errors" class="invalid-feedback">
-                    <div *ngIf="f.imageCaption.errors.required">Caption is required</div>
-                </div> -->
-            </div>
-                                    
-            <div class="form-group">
-                <img *ngIf="!showCropOverlay" class="file image w-100" [src]="defaultImageUrl">
-                <image-cropper
-                    *ngIf="showCropOverlay"
-                    class="image"
-                    [imageChangedEvent]="imageChangedEvent"
-                    [maintainAspectRatio]="false"
-                    [aspectRatio]="10 / 10"
-                    format="png"
-                    (imageCropped)="imageCropped($event)"
-                    (imageLoaded)="imageLoaded()"
-                    (cropperReady)="cropperReady()"
-                    (loadImageFailed)="loadImageFailed()">
-                </image-cropper>
-                <input type="file" #image accept="image/*" (change)="handleFileInput($event)">
-            </div>
-        </form>
-
-        <div class="form-group d-inline-block">
-            <button type="submit" class="btn btn-primary" [disabled]="ingredientForm?.invalid || isRequesting" (click)="create(ingredientForm)">Create ingredient</button>
-        </div>
-
-        <div *ngIf="errors" class="alert alert-danger d-inline-block float-end" role="alert">
-            <strong>Oops!</strong> {{errors}}
-        </div>
+    <div class="form-group">
+      @if (!showCropOverlay) {
+        <img class="file image w-100" [src]="defaultImageUrl">
+      }
+      @if (showCropOverlay) {
+        <image-cropper
+          class="image"
+          [imageChangedEvent]="imageChangedEvent"
+          [maintainAspectRatio]="false"
+          [aspectRatio]="10 / 10"
+          format="png"
+          (imageCropped)="imageCropped($event)"
+          (imageLoaded)="imageLoaded()"
+          (cropperReady)="cropperReady()"
+          (loadImageFailed)="loadImageFailed()">
+        </image-cropper>
+      }
+      <input type="file" #image accept="image/*" (change)="handleFileInput($event)">
     </div>
+  </form>
+
+  <div class="form-group d-inline-block">
+    <button type="submit" class="btn btn-primary" [disabled]="ingredientForm?.invalid || isRequesting" (click)="create(ingredientForm)">Create ingredient</button>
+  </div>
+
+  @if (errors) {
+    <div class="alert alert-danger d-inline-block float-end" role="alert">
+      <strong>Oops!</strong> {{errors}}
+    </div>
+  }
+</div>
 
 </div>

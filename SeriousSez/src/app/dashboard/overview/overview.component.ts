@@ -9,9 +9,10 @@ import { DashboardService } from '../services/dashboard.service';
 import { DatePipe } from '@angular/common';
 
 @Component({
-  selector: 'app-overview',
-  templateUrl: './overview.component.html',
-  styleUrls: ['./overview.component.css']
+    selector: 'app-overview',
+    templateUrl: './overview.component.html',
+    styleUrls: ['./overview.component.css'],
+    standalone: false
 })
 export class OverviewComponent implements OnInit {
   @ViewChild('customerModal') private customerModal: ElementRef;

@@ -1,28 +1,28 @@
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 
 
-export abstract class BaseService {  
-    
-    constructor() { }
+export abstract class BaseService {
 
-    protected handleError(error: any) {
+  constructor() { }
+
+  protected handleError(error: any) {
     var applicationError = error.headers.get('Application-Error');
 
     // either applicationError in header or model error in body
     if (applicationError) {
-      return Observable.throw(applicationError);
+      return throwError(() => applicationError);
     }
 
     var modelStateErrors: string = '';
-    var serverError = error.json();
+    var serverError = error?.error ?? error;
 
-    if (!serverError.type) {
+    if (serverError && typeof serverError === 'object' && !serverError.type) {
       for (var key in serverError) {
         if (serverError[key])
           modelStateErrors += serverError[key] + '\n';
       }
     }
-    
-    return Observable.throw(modelStateErrors || 'Server error');
+
+    return throwError(() => modelStateErrors || 'Server error');
   }
 }

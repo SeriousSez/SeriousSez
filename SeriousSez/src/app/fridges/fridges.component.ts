@@ -6,9 +6,10 @@ import { Fridge } from './models/fridge';
 import { FridgeGrocery } from './models/Fridge-grocery';
 
 @Component({
-  selector: 'app-fridges',
-  templateUrl: './fridges.component.html',
-  styleUrls: ['./fridges.component.css']
+    selector: 'app-fridges',
+    templateUrl: './fridges.component.html',
+    styleUrls: ['./fridges.component.css'],
+    standalone: false
 })
 export class FridgesComponent implements OnInit {
   public loading: boolean = true;

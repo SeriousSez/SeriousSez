@@ -16,9 +16,10 @@ import { IngredientService } from '../services/ingredient.service';
 import { RecipeService } from '../services/recipe.service';
 
 @Component({
-  selector: 'app-recipe',
-  templateUrl: './recipe.component.html',
-  styleUrls: ['./recipe.component.css']
+    selector: 'app-recipe',
+    templateUrl: './recipe.component.html',
+    styleUrls: ['./recipe.component.css'],
+    standalone: false
 })
 export class RecipeComponent implements OnInit {
   @ViewChildren("select") select: any;

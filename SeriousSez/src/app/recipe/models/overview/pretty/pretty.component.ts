@@ -10,9 +10,10 @@ import { RecipeService } from '../../services/recipe.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 
 @Component({
-  selector: 'app-pretty',
-  templateUrl: './pretty.component.html',
-  styleUrls: ['./pretty.component.css']
+    selector: 'app-pretty',
+    templateUrl: './pretty.component.html',
+    styleUrls: ['./pretty.component.css'],
+    standalone: false
 })
 export class PrettyComponent implements OnInit {
   @Input() recipes: Recipe[] = [];

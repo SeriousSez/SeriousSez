@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -36,37 +36,28 @@ export function tokenGetter() {
     HeaderComponent,
     MobileHeaderComponent,
     RegistrationComponent,
-    
     LoginComponent,
-
     SeriousComponent,
     FooterComponent,
     MobileFooterComponent,
     FridgesComponent
   ],
-  imports: [
-    BrowserModule,
+  bootstrap: [AppComponent], imports: [BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    
-    HttpClientModule,
     AppRoutingModule,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,
-        whitelistedDomains: ["localhost:5001"],
-        blacklistedRoutes: []
+        allowedDomains: ["localhost:5001"],
+        disallowedRoutes: []
       }
     }),
-
     AccountModule,
     DashboardModule,
     RecipeModule,
     GroceryModule,
     SharedModule,
-    AngularEditorModule
-  ],
-  providers: [HttpClient, ConfigService, UserService, FridgeService],
-  bootstrap: [AppComponent]
+    AngularEditorModule], providers: [HttpClient, ConfigService, UserService, FridgeService, provideHttpClient(withInterceptorsFromDi())]
 })
 export class AppModule { }

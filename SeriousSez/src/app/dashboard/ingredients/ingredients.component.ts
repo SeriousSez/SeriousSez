@@ -6,9 +6,10 @@ import { IngredientService } from 'src/app/recipe/services/ingredient.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 
 @Component({
-  selector: 'app-ingredients',
-  templateUrl: './ingredients.component.html',
-  styleUrls: ['./ingredients.component.css']
+    selector: 'app-ingredients',
+    templateUrl: './ingredients.component.html',
+    styleUrls: ['./ingredients.component.css'],
+    standalone: false
 })
 export class IngredientsComponent implements OnInit {
   @ViewChild('ingredientModal') private ingredientModal: ElementRef;

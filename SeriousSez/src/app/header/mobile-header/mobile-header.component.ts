@@ -4,9 +4,10 @@ import { Subscription } from 'rxjs';
 import { UserService } from 'src/app/shared/services/user.service';
 
 @Component({
-  selector: 'app-mobile-header',
-  templateUrl: './mobile-header.component.html',
-  styleUrls: ['./mobile-header.component.scss']
+    selector: 'app-mobile-header',
+    templateUrl: './mobile-header.component.html',
+    styleUrls: ['./mobile-header.component.scss'],
+    standalone: false
 })
 export class MobileHeaderComponent implements OnInit {
   @HostBinding('class.navbar-opened') navbarOpened = false;

@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
@@ -8,16 +8,17 @@ import { IngredientCreation } from 'src/app/shared/models/ingredient.creation.in
 import { UserService } from 'src/app/shared/services/user.service';
 
 @Component({
-  selector: 'app-ingredient-modal',
-  templateUrl: './ingredient.modal.html',
-  styleUrls: ['./ingredient.modal.css']
+    selector: 'app-ingredient-modal',
+    templateUrl: './ingredient.modal.html',
+    styleUrls: ['./ingredient.modal.css'],
+    standalone: false
 })
 export class ingredientModal implements OnInit {
     @Input() ingredients: Ingredient[] = [];
 
     @Output() finish = new EventEmitter();
 
-    public ingredientForm: FormGroup;
+    public ingredientForm: UntypedFormGroup;
 
     public errors: string = '';
     public isRequesting: boolean = false;
@@ -31,7 +32,7 @@ export class ingredientModal implements OnInit {
     public croppedImage: any = '';
     public showCropOverlay = false;
 
-    constructor(private ingredientService: IngredientService, private userService: UserService, private router: Router, private formBuilder: FormBuilder) { }
+    constructor(private ingredientService: IngredientService, private userService: UserService, private router: Router, private formBuilder: UntypedFormBuilder) { }
 
     ngOnInit(): void {
         this.imageUrl = this.defaultImageUrl;

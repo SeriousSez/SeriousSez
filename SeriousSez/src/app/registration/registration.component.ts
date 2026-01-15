@@ -5,9 +5,10 @@ import { UserRegistration } from 'src/app/shared/models/user.registration.interf
 import { UserService } from '../shared/services/user.service';
 
 @Component({
-  selector: 'app-registration',
-  templateUrl: './registration.component.html',
-  styleUrls: ['./registration.component.css']
+    selector: 'app-registration',
+    templateUrl: './registration.component.html',
+    styleUrls: ['./registration.component.css'],
+    standalone: false
 })
 export class RegistrationComponent implements OnInit {
   

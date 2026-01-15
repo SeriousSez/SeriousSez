@@ -4,17 +4,18 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 import { Credentials } from '../shared/models/credentials.interface';
 import { UserService } from '../shared/services/user.service';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+    selector: 'app-login',
+    templateUrl: './login.component.html',
+    styleUrls: ['./login.component.css'],
+    standalone: false
 })
 export class LoginComponent implements OnInit, OnDestroy {
 
   private subscription: Subscription;
-  public loginForm: FormGroup;
+  public loginForm: UntypedFormGroup;
 
   brandNew: boolean = false;
   errors: string = "";
@@ -22,7 +23,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   submitted: boolean = false;
   credentials: Credentials = { identity: '', password: '' };
 
-  constructor(private userService: UserService, private router: Router,private activatedRoute: ActivatedRoute, private formBuilder: FormBuilder) { }
+  constructor(private userService: UserService, private router: Router,private activatedRoute: ActivatedRoute, private formBuilder: UntypedFormBuilder) { }
 
   ngOnInit() {
     this.loginForm = this.formBuilder.group({

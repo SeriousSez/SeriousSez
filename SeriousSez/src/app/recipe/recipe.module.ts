@@ -10,7 +10,7 @@ import { RecipeService } from './services/recipe.service';
 import { AuthGuard } from '../shared/guards/auth.guard';
 import { CreateComponent } from './create/create.component';
 import { RootComponent } from './root/root.component';
-import { ImageCropperModule } from 'ngx-image-cropper';
+import { ImageCropperComponent } from 'ngx-image-cropper';
 import { IngredientService } from './services/ingredient.service';
 import { RecipeComponent } from './recipe/recipe.component';
 import { AngularEditorModule } from '@kolkov/angular-editor';
@@ -27,18 +27,18 @@ import { UtilityService } from '../shared/utils/utility.service';
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
-    ImageCropperModule,
+    ImageCropperComponent,
     AngularEditorModule,
     CKEditorModule
   ],
   declarations: [
-    OverviewComponent, 
-    PrettyComponent, 
-    CreateComponent, 
+    OverviewComponent,
+    PrettyComponent,
+    CreateComponent,
     RootComponent,
     RecipeComponent
   ],
-  exports: [ ],
+  exports: [],
   providers: [AuthGuard, RecipeService, IngredientService, DatePipe, SafeService, FavoriteService, UtilityService]
 })
 

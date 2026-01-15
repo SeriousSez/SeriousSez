@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { UserService } from 'src/app/shared/services/user.service';
 import { UserSettingsUpdate } from '../models/user-settings-update.interface';
@@ -8,9 +8,10 @@ import { UserUpdate } from '../models/user-update.interface';
 import { User } from '../models/user.interface';
 
 @Component({
-  selector: 'app-profile',
-  templateUrl: './profile.component.html',
-  styleUrls: ['./profile.component.css']
+    selector: 'app-profile',
+    templateUrl: './profile.component.html',
+    styleUrls: ['./profile.component.css'],
+    standalone: false
 })
 export class ProfileComponent implements OnInit {
   public languages: string[] = ['Danish', 'English', 'Estonian', 'Turkish']
@@ -20,7 +21,7 @@ export class ProfileComponent implements OnInit {
 
   public user: User;
   
-  public profileForm: FormGroup;
+  public profileForm: UntypedFormGroup;
   public formHasChanged: boolean = false;
 
   public errors: string = '';
@@ -29,7 +30,7 @@ export class ProfileComponent implements OnInit {
   settings: UserSettings;
   settingsSubscription?: Subscription;
 
-  constructor(private userService: UserService, private formBuilder: FormBuilder) {
+  constructor(private userService: UserService, private formBuilder: UntypedFormBuilder) {
     this.username = this.userService.getUserName();
     this.email = this.userService.getEmail();
     

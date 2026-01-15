@@ -1,44 +1,56 @@
 <div class="container">
 
-    <div class="mb-3">
-        <button class="btn btn-brand-alt" type="button" routerLink="/recipes">Add a recipe</button>        
-        <button class="btn btn-brand-alt ms-3" type="button" routerLink="/dashboard/ingredients">Add an ingredient</button>	
-    </div>
-    
-    <table class="table table-hover caption-top">
-        <caption>List of ingredients</caption>
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col" class="cursor-pointer" (click)="sort('name')">Ingredient <i *ngIf="sortSetting == 'name'" class="fas fa-sort"></i></th>
-                <th scope="col" class="cursor-pointer" (click)="sort('amount')">Amount <i *ngIf="sortSetting == 'amount'" class="fas fa-sort"></i></th>
-                <th scope="col" class="cursor-pointer" (click)="sort('created')">Created <i *ngIf="sortSetting == 'created'" class="fas fa-sort"></i></th>
-            </tr>
-        </thead>
-        <tbody *ngFor="let ingredient of ingredients; let i = index">
-            <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed">
-                <th scope="row">
-                    <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" (click)="toggleIngredientSelected(ingredient)">
-                </th>
-                <td class="cursor-pointer">
-                    {{ingredient.name}}
-                </td>
-                <td class="cursor-pointer">
-                    {{ingredient.amount}} {{ingredient.amountType}}
-                </td>
-                <td class="cursor-pointer" (click)="toggleAccordion('accordion' + i, 'table-row' + i)">
-                    {{displayDateOnly(ingredient.created)}}
-                </td>
-            </tr>
-            <tr>
-                <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr">
-                    <img *ngIf="!ingredient.image" class="col-3 figure-img img-fluid rounded" src="assets/images/milk.jpg">
-                    <img *ngIf="ingredient.image" [src]="ingredient.image?.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image?.caption">
-                    <div class="col-9 list-group list-group-flush float-end ps-3"><h5>Description</h5>{{ingredient.description}}</div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+  <div class="mb-3">
+    <button class="btn btn-brand-alt" type="button" routerLink="/recipes">Add a recipe</button>
+    <button class="btn btn-brand-alt ms-3" type="button" routerLink="/dashboard/ingredients">Add an ingredient</button>
+  </div>
+
+  <table class="table table-hover caption-top">
+    <caption>List of ingredients</caption>
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col" class="cursor-pointer" (click)="sort('name')">Ingredient @if (sortSetting == 'name') {
+          <i class="fas fa-sort"></i>
+        }</th>
+        <th scope="col" class="cursor-pointer" (click)="sort('amount')">Amount @if (sortSetting == 'amount') {
+          <i class="fas fa-sort"></i>
+        }</th>
+        <th scope="col" class="cursor-pointer" (click)="sort('created')">Created @if (sortSetting == 'created') {
+          <i class="fas fa-sort"></i>
+        }</th>
+      </tr>
+    </thead>
+    @for (ingredient of ingredients; track ingredient; let i = $index) {
+      <tbody>
+        <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed">
+          <th scope="row">
+            <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" (click)="toggleIngredientSelected(ingredient)">
+          </th>
+          <td class="cursor-pointer">
+            {{ingredient.name}}
+          </td>
+          <td class="cursor-pointer">
+            {{ingredient.amount}} {{ingredient.amountType}}
+          </td>
+          <td class="cursor-pointer" (click)="toggleAccordion('accordion' + i, 'table-row' + i)">
+            {{displayDateOnly(ingredient.created)}}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr">
+            @if (!ingredient.image) {
+              <img class="col-3 figure-img img-fluid rounded" src="assets/images/milk.jpg">
+            }
+            @if (ingredient.image) {
+              <img [src]="ingredient.image?.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image?.caption">
+            }
+            <div class="col-9 list-group list-group-flush float-end ps-3"><h5>Description</h5>{{ingredient.description}}</div>
+          </td>
+        </tr>
+      </tbody>
+    }
+  </table>
 </div>
 
 <app-list-overlay [title]="'Add to grocery list'" ></app-list-overlay>

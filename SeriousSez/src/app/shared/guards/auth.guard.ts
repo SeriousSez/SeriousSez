@@ -1,10 +1,10 @@
 // auth.guard.ts
 import { Injectable } from '@angular/core';
-import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { UserService } from '../services/user.service';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthGuard  {
   constructor(private userService: UserService, private router: Router) {}
   
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) { 

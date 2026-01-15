@@ -2,9 +2,10 @@ import { ViewportScroller } from '@angular/common';
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 
 @Component({
-  selector: 'app-mobile-footer',
-  templateUrl: './mobile-footer.component.html',
-  styleUrls: ['./mobile-footer.component.css']
+    selector: 'app-mobile-footer',
+    templateUrl: './mobile-footer.component.html',
+    styleUrls: ['./mobile-footer.component.css'],
+    standalone: false
 })
 export class MobileFooterComponent implements OnInit {
   scrollUp: string = "scroll-up";

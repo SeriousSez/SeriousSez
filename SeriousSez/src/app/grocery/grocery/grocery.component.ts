@@ -5,9 +5,10 @@ import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 
 @Component({
-  selector: 'app-grocery',
-  templateUrl: './grocery.component.html',
-  styleUrls: ['./grocery.component.css']
+    selector: 'app-grocery',
+    templateUrl: './grocery.component.html',
+    styleUrls: ['./grocery.component.css'],
+    standalone: false
 })
 export class GroceryComponent implements OnInit {
   @ViewChild('ingredientModal') private ingredientModal: ElementRef;

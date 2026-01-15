@@ -5,14 +5,14 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
- 
+
 import { Focus } from '../../directives/focus.directive';
-import { SpinnerComponent } from '../../spinner/spinner.component';  
+import { SpinnerComponent } from '../../spinner/spinner.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AlertComponent } from '../alert/alert.component';
 import { RegistrationModal } from '../modals/registration/registration.modal';
 import { ingredientModal } from '../modals/ingredient/ingredient.modal';
-import { ImageCropperModule } from 'ngx-image-cropper';
+import { ImageCropperComponent } from 'ngx-image-cropper';
 import { CKEditorModule } from 'ckeditor4-angular';
 import { ListOverlay } from '../overlays/list-overlay/list.overlay';
 
@@ -30,16 +30,17 @@ import { ListOverlay } from '../overlays/list-overlay/list.overlay';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ImageCropperModule,
+    ImageCropperComponent,
     CKEditorModule
   ],
-  exports:[
-    Focus, 
+  exports: [
+    Focus,
     SpinnerComponent,
     AlertComponent,
     RegistrationModal,
     ingredientModal,
-    ListOverlay
+    ListOverlay,
+    ImageCropperComponent
   ],
   providers: []
 })

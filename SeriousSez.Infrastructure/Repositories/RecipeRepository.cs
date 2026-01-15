@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SeriousSez.Domain.Entities;
 using SeriousSez.Domain.Entities.Recipe;
+using SeriousSez.Infrastructure.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,7 +44,12 @@ namespace SeriousSez.Infrastructure.Repositories
 
         public async Task<Recipe> GetByTitleFull(string title)
         {
-            var recipe = await _context.Recipes.Include(r => r.RecipeIngredients).ThenInclude(r => r.Recipe).Include(r => r.RecipeIngredients).ThenInclude(r => r.Ingredient).Include(r => r.Creator).Include(r => r.Image).FirstOrDefaultAsync(r => r.Title == title);
+            var recipe = await _context.Recipes
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)  // Only include Ingredient, not Recipe
+                .Include(r => r.Creator)
+                .Include(r => r.Image)
+                .FirstOrDefaultAsync(r => r.Title == title);
             return recipe;
         }
 
@@ -58,9 +64,7 @@ namespace SeriousSez.Infrastructure.Repositories
         {
             var recipe = await _context.Recipes
                 .Include(r => r.RecipeIngredients)
-                .ThenInclude(r => r.Recipe)
-                .Include(r => r.RecipeIngredients)
-                .ThenInclude(r => r.Ingredient)
+                    .ThenInclude(ri => ri.Ingredient)  // Only include Ingredient, not Recipe
                 .Include(r => r.Creator)
                 .Include(r => r.Image)
                 .FirstOrDefaultAsync(r => r.Title == title && r.Creator.UserName == creator);
@@ -82,13 +86,24 @@ namespace SeriousSez.Infrastructure.Repositories
 
         public async Task<IEnumerable<Recipe>> GetAllByCreatorFull(string creator)
         {
-            var recipes = await _context.Recipes.Include(r => r.RecipeIngredients).ThenInclude(r => r.Recipe).Include(r => r.RecipeIngredients).ThenInclude(r => r.Ingredient).Include(r => r.Creator).Include(r => r.Image).Where(r => r.Creator.UserName == creator).ToListAsync();
+            var recipes = await _context.Recipes
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)  // Only include Ingredient, not Recipe
+                .Include(r => r.Creator)
+                .Include(r => r.Image)
+                .Where(r => r.Creator.UserName == creator)
+                .ToListAsync();
             return recipes;
         }
 
         public async Task<IEnumerable<Recipe>> GetAllFull()
         {
-            var recipes = await _context.Recipes.Include(r => r.RecipeIngredients).ThenInclude(r => r.Recipe).Include(r => r.RecipeIngredients).ThenInclude(r => r.Ingredient).Include(r => r.Creator).Include(r => r.Image).ToListAsync();
+            var recipes = await _context.Recipes
+                .Include(r => r.RecipeIngredients)
+                    .ThenInclude(ri => ri.Ingredient)  // Only include Ingredient, not Recipe
+                .Include(r => r.Creator)
+                .Include(r => r.Image)
+                .ToListAsync();
             return recipes;
         }
 

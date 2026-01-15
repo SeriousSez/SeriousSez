@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-serious',
-  templateUrl: './serious.component.svg',
-  styleUrls: ['./serious.component.css']
+    selector: 'app-serious',
+    templateUrl: './serious.component.svg',
+    styleUrls: ['./serious.component.css'],
+    standalone: false
 })
 export class SeriousComponent {
   fillColor = 'rgb(255, 0, 0)';
