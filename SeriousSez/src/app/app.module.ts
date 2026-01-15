@@ -23,6 +23,8 @@ import { MobileFooterComponent } from './footer/mobile-footer/mobile-footer.comp
 import { GroceryModule } from './grocery/grocery.module';
 import { JwtModule } from '@auth0/angular-jwt';
 import { FridgesComponent } from './fridges/fridges.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 import { FridgeService } from './fridges/fridge.service';
 
 export function tokenGetter() {
@@ -40,7 +42,9 @@ export function tokenGetter() {
     SeriousComponent,
     FooterComponent,
     MobileFooterComponent,
-    FridgesComponent
+    FridgesComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent
   ],
   bootstrap: [AppComponent], imports: [BrowserModule,
     FormsModule,

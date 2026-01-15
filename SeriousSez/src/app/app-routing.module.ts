@@ -7,6 +7,8 @@ import { AuthGuard } from './shared/guards/auth.guard';
 import { RecipeComponent } from './recipe/recipe/recipe.component';
 import { AdminGuard } from './shared/guards/admin.guard';
 import { FridgesComponent } from './fridges/fridges.component';
+import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -17,6 +19,8 @@ const routes: Routes = [
   { path: 'fridges', component: FridgesComponent },
   { path: 'register', component: RegistrationComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: 'recipe/:title/:creator', component: RecipeComponent },
 
   { path: '**', component: HomeComponent }

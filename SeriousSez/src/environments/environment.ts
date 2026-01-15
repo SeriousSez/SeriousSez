@@ -4,6 +4,7 @@
 
 export const environment = {
   production: false,
+  // baseUrl: 'https://recipe-hub.api.sezginsahin.dk'
   baseUrl: 'http://localhost:55843'
 };
 

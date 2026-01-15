@@ -122,5 +122,41 @@ namespace SeriousSez.ApplicationService.Services
                 new Claim(ClaimTypes.Role, role)
             });
         }
+
+        public async Task<PasswordResetRequestResponse> GeneratePasswordResetToken(ForgotPasswordViewModel request)
+        {
+            var response = new PasswordResetRequestResponse
+            {
+                Email = request.Email,
+                Message = "If an account exists for this email, a reset token has been generated.",
+                Success = true
+            };
+
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return response;
+            }
+
+            response.Token = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            return response;
+        }
+
+        public async Task<IdentityResult> ResetPassword(ResetPasswordViewModel request)
+        {
+            if (request.Password != request.ConfirmPassword)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "Passwords do not match." });
+            }
+
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+            {
+                return IdentityResult.Failed(new IdentityError { Description = "User not found." });
+            }
+
+            return await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
+        }
     }
 }

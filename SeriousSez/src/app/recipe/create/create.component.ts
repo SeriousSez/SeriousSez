@@ -52,7 +52,6 @@ export class CreateComponent implements OnInit {
     editable: true,
     spellcheck: true,
     height: '200px',
-    minHeight: '200px',
     maxHeight: 'auto',
     width: 'auto',
     minWidth: '0',

@@ -5,9 +5,9 @@
       <div class="card-block">
 
         @if (brandNew) {
-          <div class="alert alert-success" role="alert">
-            <strong>All set!</strong> Please login with your account
-          </div>
+        <div class="alert alert-success" role="alert">
+          <strong>All set!</strong> Please login with your account
+        </div>
         }
 
         <div class="card-header bg-white mb-3">
@@ -19,43 +19,44 @@
             <label for="identity">Username or E-mail</label>
             <input id="identity" type="text" class="form-control" [ngClass]="{ 'is-invalid': f.identity.touched && f.identity.errors }" name="identity" placeholder="Username or E-mail" formControlName="identity" tmFocus validateEmail required>
             @if (f.identity.touched && f.identity.errors) {
-              <div class="invalid-feedback">
-                @if (f.identity.errors.required) {
-                  <div>Identity is required</div>
-                }
-              </div>
+            <div class="invalid-feedback">
+              @if (f.identity.errors.required) {
+              <div>Identity is required</div>
+              }
+            </div>
             }
 
             <!-- <small [hidden]="email.valid || (email.pristine && !submitted)" class="text-danger">
             Please enter a valid email
           </small> -->
 
-        </div>
+          </div>
 
-        <div class="form-group mb-3">
-          <label for="password">Password</label>
-          <input id="password" type="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': f.password.touched && f.password.errors }" placeholder="Password" formControlName="password" required>
-          @if (f.password.touched && f.password.errors) {
+          <div class="form-group mb-3">
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" class="form-control" [ngClass]="{ 'is-invalid': f.password.touched && f.password.errors }" placeholder="Password" formControlName="password" required>
+            @if (f.password.touched && f.password.errors) {
             <div class="invalid-feedback">
               @if (f.password.errors.required) {
-                <div>Password is required</div>
+              <div>Password is required</div>
               }
             </div>
-          }
-        </div>
+            }
+          </div>
 
-        <div class="form-group d-inline-block">
-          <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid || isRequesting">Login</button>
-          <!-- <app-spinner [isRunning]="isRequesting"></app-spinner> -->
-        </div>
+          <div class="form-group d-inline-block">
+            <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid || isRequesting">Login</button>
+            <!-- <app-spinner [isRunning]="isRequesting"></app-spinner> -->
+            <a class="ms-3 text-decoration-none" routerLink="/forgot-password">Forgot password?</a>
+          </div>
 
-        @if (errors) {
+          @if (errors) {
           <div class="alert alert-danger d-inline-block float-end" role="alert">
             <strong>Oops!</strong> {{errors}}
           </div>
-        }
-      </form>
+          }
+        </form>
 
+      </div>
     </div>
   </div>
-</div>

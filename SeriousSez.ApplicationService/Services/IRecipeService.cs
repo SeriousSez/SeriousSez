@@ -16,7 +16,7 @@ namespace SeriousSez.ApplicationService.Services
         Task<IEnumerable<RecipeResponse>> GetAll();
         Task<IEnumerable<RecipeResponse>> GetAll(string creator);
         Task<List<RecipeResponse>> GetAllByIngredient(IngredientResponse model);
-        Task<Recipe> Update(RecipeUpdateViewModel model);
+        Task<RecipeResponse> Update(RecipeUpdateViewModel model);
         Task<bool> DeleteRecipeIngredient(IngredientResponse model);
         Task<Recipe> Delete(Guid id);
     }

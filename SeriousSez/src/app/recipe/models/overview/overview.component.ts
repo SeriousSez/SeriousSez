@@ -1,21 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common'
-import { Recipe } from '../models/recipe.interface';
-import { RecipeService } from '../services/recipe.service';
+import { Recipe } from '../../models/recipe.interface';
+import { RecipeService } from '../../services/recipe.service';
 import { Router } from '@angular/router';
 import { UserService } from 'src/app/shared/services/user.service';
 import { FavoriteService } from 'src/app/shared/services/favorite.service';
 import { Favorites } from 'src/app/shared/models/favorites.interface';
 import { Subscription } from 'rxjs';
-import { Ingredient } from '../models/ingredient.interface';
+import { Ingredient } from '../../models/ingredient.interface';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { UserSettings } from 'src/app/account/models/user-settings.interface';
 
 @Component({
-    selector: 'app-overview',
-    templateUrl: './overview.component.html',
-    styleUrls: ['./overview.component.css'],
-    standalone: false
+  selector: 'app-overview',
+  templateUrl: './overview.component.html',
+  styleUrls: ['./overview.component.css'],
+  standalone: false
 })
 export class OverviewComponent implements OnInit {
   public recipeList: Recipe[] = [];
@@ -42,11 +42,11 @@ export class OverviewComponent implements OnInit {
     this.getRecipes();
     this.getFavorites();
     this.getGroceryLists();
-    this.subscription = this.userService.authNavStatus$.subscribe(status => this.status = status);
+    this.subscription = this.userService.authStatus$.subscribe((status: boolean) => this.status = status);
     this.settingsSubscription = this.userService.settings$.subscribe(settings => this.settings = settings);
   }
 
-  getGroceryLists(){
+  getGroceryLists() {
     this.recipeList = this.groceryService.getRecipeList();
     this.groceryList = this.groceryService.getIngredientList();
   }
@@ -56,70 +56,70 @@ export class OverviewComponent implements OnInit {
     this.subscription?.unsubscribe();
   }
 
-  getRecipes(){
+  getRecipes() {
     this.recipeService.getRecipes().subscribe((recipes: Recipe[]) => {
       this.recipes = recipes;
       this.shownRecipes = recipes;
       this.loading = false;
       this.sort(this.sortSetting);
     },
-    error => {
-      //this.notificationService.printErrorMessage(error);
-    });
+      (error: any) => {
+        //this.notificationService.printErrorMessage(error);
+      });
   }
 
-  getFavorites(){
+  getFavorites() {
     var username = this.userService.getUserName();
-    if(username.length == 0 || username == '' || username == null) return;
-    
+    if (username.length == 0 || username == '' || username == null) return;
+
     this.favoriteService.get(username).subscribe((favorites: Favorites) => {
-      this.favoredRecipes = favorites.Recipes;
+      this.favoredRecipes = favorites.recipes;
     },
-    error => {
-      //this.notificationService.printErrorMessage(error);
-    });
+      (error: any) => {
+        //this.notificationService.printErrorMessage(error);
+      });
   }
 
-  addSelectedRecipesToGroceryList(){
+  addSelectedRecipesToGroceryList() {
     this.selectedRecipes.forEach(recipe => {
       this.groceryService.toggleRecipeToList(recipe);
       this.recipeList = this.groceryService.getRecipeList();
     });
   }
 
-  toggleRecipeSelected(recipe: Recipe){
+  toggleRecipeSelected(recipe: Recipe) {
     var index = this.selectedRecipes.indexOf(recipe, 0);
     if (index > -1) {
       this.selectedRecipes.splice(index, 1);
-    }else{
+    } else {
       this.selectedRecipes.push(recipe);
     }
   }
 
-  toggleDisplay(){
+  toggleDisplay() {
     this.showFavorites = !this.showFavorites;
-    if(this.showFavorites){
-      if(this.favoredRecipes == null) this.favoredRecipes = [];
+    if (this.showFavorites) {
+      if (this.favoredRecipes == null) this.favoredRecipes = [];
 
       this.shownRecipes = this.favoredRecipes;
-    }else{
+    } else {
       this.shownRecipes = this.recipes;
     }
   }
 
-  openRecipe(recipe: Recipe){
+  openRecipe(recipe: Recipe) {
     this.router.navigate([`recipe/${recipe.Title.toLocaleLowerCase()}/${recipe.Creator.toLocaleLowerCase()}`]);
   }
 
-  displayDateOnly(created: string){
+  displayDateOnly(created: string) {
     return this.datepipe.transform(created, 'dd-MM-yyyy');
   }
 
-  sort(sortSetting: string){
-    if(this.sortSetting != sortSetting) this.ascending = true;
+  sort(sortSetting: string) {
+    if (this.sortSetting != sortSetting) this.ascending = true;
     this.sortSetting = sortSetting;
 
-    switch(sortSetting){
+    switch (sortSetting) {
       case 'title':
         this.shownRecipes.sort((a, b) => this.ascending == true ? a.Title.localeCompare(b.Title) : -a.Title.localeCompare(b.Title));
         this.ascending = !this.ascending;

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 using SeriousSez.ApplicationService.Auth;
 using SeriousSez.ApplicationService.Interfaces;
 using SeriousSez.ApplicationService.Services;
@@ -133,7 +134,11 @@ namespace SeriousSez
                 //options.Lockout.MaxFailedAccessAttempts = 3;
             });
 
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SeriousSez.API", Version = "v1" });
@@ -245,7 +250,12 @@ namespace SeriousSez
                 options.UseMySql(Configuration.GetConnectionString("MySql"), new MySqlServerVersion(new Version(8, 0, 11))));
 #endif
 
-            services.AddAutoMapper(c => c.AddProfile<Api.AutoMapper>(), typeof(Startup));
+            services.AddAutoMapper(cfg =>
+            {
+                // Disable method mapping to avoid scanning extension methods like MaxFloat that break generic constraints
+                cfg.ShouldMapMethod = _ => false;
+                cfg.AddProfile<Api.AutoMapper>();
+            }, typeof(Startup));
         }
 
         private void SetupSecurity(IServiceCollection services)

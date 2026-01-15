@@ -201,7 +201,7 @@ namespace SeriousSez.ApplicationService.Services
             return recipeList;
         }
 
-        public async Task<Recipe> Update(RecipeUpdateViewModel model)
+        public async Task<RecipeResponse> Update(RecipeUpdateViewModel model)
         {
             var recipe = await _recipeRepository.GetByTitleAndCreatorFull(model.OldTitle, model.Creator);
 
@@ -236,7 +236,14 @@ namespace SeriousSez.ApplicationService.Services
 
             _logger.LogTrace("Recipe updated!", recipe);
 
-            return recipe;
+            var response = _mapper.Map<RecipeResponse>(recipe);
+            response.Ingredients = new List<IngredientResponse>();
+            foreach (var recipeIngredient in recipe.RecipeIngredients)
+            {
+                response.Ingredients.Add(await CreateIngredientResponeModel(recipeIngredient));
+            }
+
+            return response;
         }
 
         public async Task<bool> DeleteRecipeIngredient(IngredientResponse model)

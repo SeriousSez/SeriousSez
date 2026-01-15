@@ -1,7 +1,7 @@
 import { Image } from "./image.interface";
 import { Ingredient } from "./ingredient.interface";
 
-export interface RecipeUpdate{
+export interface RecipeUpdate {
     oldTitle: string;
     title: string;
     creator: string;
@@ -9,6 +9,6 @@ export interface RecipeUpdate{
     instructions: string;
     portions: string;
     created: string;
-    image: Image;
+    image: Image | null;
     ingredients: Ingredient[];
 }

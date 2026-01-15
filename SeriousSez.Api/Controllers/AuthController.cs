@@ -31,5 +31,32 @@ namespace SeriousSez.Api.Controllers
             //var json = JsonConvert.SerializeObject(response, _serializerSettings);
             return new OkObjectResult(response);
         }
+
+        [HttpPost("forgotpassword")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var response = await _authService.GeneratePasswordResetToken(model);
+            return new OkObjectResult(response);
+        }
+
+        [HttpPost("resetpassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _authService.ResetPassword(model);
+            if (result.Succeeded == false)
+                return BadRequest(result.Errors);
+
+            return new OkResult();
+        }
     }
 }

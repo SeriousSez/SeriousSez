@@ -1,4 +1,5 @@
-﻿using SeriousSez.Domain.Entities;
+﻿using Microsoft.AspNetCore.Identity;
+using SeriousSez.Domain.Entities;
 using SeriousSez.Domain.Models;
 using SeriousSez.Domain.Responses;
 using System.Security.Claims;
@@ -11,5 +12,7 @@ namespace SeriousSez.ApplicationService.Services
         Task<LoginResponse> Login(CredentialsViewModel request);
         Task<ClaimsIdentity> GetClaimsIdentity(CredentialsViewModel credentials);
         Task<ClaimsIdentity> CheckCredentials(User userToVerify, CredentialsViewModel credentials);
+        Task<PasswordResetRequestResponse> GeneratePasswordResetToken(ForgotPasswordViewModel request);
+        Task<IdentityResult> ResetPassword(ResetPasswordViewModel request);
     }
 }

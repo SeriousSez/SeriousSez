@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  baseUrl: 'https://api.sezginsahin.dk'
+  baseUrl: 'https://recipe-hub.api.sezginsahin.dk'
 };

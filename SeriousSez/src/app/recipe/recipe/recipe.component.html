@@ -15,16 +15,16 @@
 
                 <h2>{{recipe.title}}</h2>
 
-                <div> 
+                <div>
                     <span class="post-meta-author">
-                        <span>By </span> 
+                        <span>By </span>
                         <a class="tw-text-strong hover_tw-no-underline" href="">{{recipe.creator}}</a>
                     </span>
                     <time class="post-meta-date"> - <i>{{displayDateOnly(recipe.created)}}</i></time>
                 </div>
             </header>
 
-            <figure class="figure w-100">
+            <figure *ngIf="recipe.image" class="figure w-100">
                 <img [src]="recipe.image.url" class="figure-img img-fluid rounded w-100" [alt]="recipe.image.caption">
                 <figcaption class="figure-caption">{{recipe.image.caption}}</figcaption>
             </figure>
@@ -74,12 +74,12 @@
             </footer>
         </article>
     </div>
-    
+
     <div class="pb-1">
         <div *ngIf="edit == false" class="ingredients card text-white bg-brand my-3">
             <div class="card-header text-uppercase">
                 Ingredients
-                <i *ngIf="currentIngredients.length > 0"class="fas fa-eye cursor-pointer float-end ms-1" (click)="toggleIngredients()"></i>
+                <i *ngIf="currentIngredients.length > 0" class="fas fa-eye cursor-pointer float-end ms-1" (click)="toggleIngredients()"></i>
             </div>
             <div *ngIf="showIngredients && currentIngredients.length > 0" class="card-body list-group-flush side bg-white text-dark" style="border: solid #f25d9c;">
                 <p *ngFor="let ingredient of currentIngredients" class="list-group-item">
@@ -106,37 +106,32 @@
                 <h2>
                     <input id="title" type="text" name="title" value="{{recipe.title}}" class="form-control" placeholder="Recipe title" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.title">
                 </h2>
-                <div> 
+                <div>
                     <span class="post-meta-author">
-                        <span>By </span> 
+                        <span>By </span>
                         <a class="tw-text-strong hover_tw-no-underline" href="">{{recipe.creator}}</a>
                     </span>
                     <time class="post-meta-date"> - <i>{{displayDateOnly(recipe.created)}}</i></time>
                 </div>
             </header>
-            
-            <figure class="figure w-100">
+
+            <figure *ngIf="recipe.image" class="figure w-100">
                 <!-- <img class="figure-img img-fluid rounded w-100" [src]="recipe.image.url"> -->
-                <image-cropper
-                    [imageURL]="recipe.image.url"
-                    [imageChangedEvent]="imageChangedEvent"
-                    [maintainAspectRatio]="false"
-                    [aspectRatio]="10 / 10"
-                    format="png"
-                    (imageCropped)="imageCropped($event)"
-                    (imageLoaded)="imageLoaded()"
-                    (cropperReady)="cropperReady()"
+                <image-cropper [imageURL]="recipe.image.url" [imageChangedEvent]="imageChangedEvent" [maintainAspectRatio]="false" [aspectRatio]="10 / 10" format="png" (imageCropped)="imageCropped($event)" (imageLoaded)="imageLoaded()" (cropperReady)="cropperReady()"
                     (loadImageFailed)="loadImageFailed()">
                 </image-cropper>
                 <input type="file" accept="image/*" class="my-2" (change)="handleFileInput($event)" #image>
                 <input id="image-caption" type="text" name="imageCaption" value="{{recipe.image.caption}}" class="form-control mt-2" placeholder="Image Caption" autocomplete="off" data-lpignore="true" [(ngModel)]="recipe.image.caption">
             </figure>
+            <div *ngIf="!recipe.image" class="my-3">
+                <input type="file" accept="image/*" class="form-control" (change)="handleFileInput($event)" #image>
+            </div>
             <div>
                 <div>
                     <header>
                         <h3>Instructions</h3>
                     </header>
-                    <ckeditor #editor id="editor" aria-valuenow="recipe.instructions" [(ngModel)]="recipe.instructions"></ckeditor>
+                    <angular-editor [config]="editorConfig" [(ngModel)]="recipe.instructions"></angular-editor>
                 </div>
 
                 <div class="accordion mt-3" id="accordion">
@@ -269,7 +264,7 @@
         <button *ngIf="recipe" type="submit" class="btn btn-primary ms-2" (click)="update()">Update</button>
         <button type="submit" class="btn btn-outline-link float-end me-2" (click)="edit = false">Cancel</button>
     </div>
-    
+
     <div *ngIf="errors" class="alert alert-danger d-inline-block float-end" role="alert">
         <strong>Oops!</strong> {{errors}}
     </div>
