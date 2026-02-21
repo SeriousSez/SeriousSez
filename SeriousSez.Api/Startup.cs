@@ -69,11 +69,13 @@ namespace SeriousSez
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options
-                    .AllowAnyOrigin()
+                    .WithOrigins(
+                        "http://localhost:4200",
+                        "https://recipes.sezginsahin.dk"
+                    )
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .WithExposedHeaders("Authorization")
-                    .SetIsOriginAllowedToAllowWildcardSubdomains()
                     .AllowCredentials());
             });
 
@@ -214,11 +216,8 @@ namespace SeriousSez
             // app.UseHttpsRedirection();
 
             // Swagger configuration
-            if (env.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SeriousSez v1"));
-            }
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SeriousSez v1"));
 
             app.UseRouting();
             app.UseAuthentication();
