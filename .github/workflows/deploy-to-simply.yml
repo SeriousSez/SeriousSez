@@ -10,7 +10,7 @@ env:
   DOTNET_VERSION: "8.0.x"
   PROJECT_PATH: "SeriousSez.Api/SeriousSez.Api.csproj"
   PUBLISH_PATH: "./publish"
-  RUNTIME_IDENTIFIER: "win-x64"
+  RUNTIME_IDENTIFIER: "win-x86"
   NODE_VERSION: "20.x"
   ANGULAR_WORKING_DIR: "./SeriousSez"
   ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez/browser"
