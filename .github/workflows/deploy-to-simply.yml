@@ -103,7 +103,7 @@ jobs:
           dotnet publish ${{ env.PROJECT_PATH }} `
             --configuration Release `
             --self-contained false `
-            /p:AspNetCoreHostingModel=InProcess `
+            /p:AspNetCoreHostingModel=OutOfProcess `
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
 
@@ -226,7 +226,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ${{ env.PUBLISH_PATH }}/
           server-dir: /recipes.api/
-          dangerous-clean-slate: false
+          dangerous-clean-slate: true
 
       - name: Wait for app to restart
         shell: pwsh

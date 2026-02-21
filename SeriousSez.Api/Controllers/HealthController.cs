@@ -3,8 +3,8 @@
 namespace SeriousSez.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
-    public class HealthController
+    [Route("api/[controller]")]
+    public class HealthController : ControllerBase
     {
         [HttpGet("ping")]
         public IActionResult Ping()
