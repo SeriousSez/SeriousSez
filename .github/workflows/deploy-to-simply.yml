@@ -14,8 +14,8 @@ env:
   NODE_VERSION: "20.x"
   ANGULAR_WORKING_DIR: "./SeriousSez"
   ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez"
-  # API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/api/health"
-  # WEB_HEALTH_URL: "https://recipes.sezginsahin.dk/"
+  API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/api/health"
+  WEB_HEALTH_URL: "https://recipes.sezginsahin.dk/"
 
 jobs:
   detect-changes:
@@ -288,78 +288,78 @@ jobs:
       #     server-dir: /serioussez.api/
       #     dangerous-clean-slate: false
 
-  # deploy-web:
-  #   runs-on: windows-latest
-  #   needs: [detect-changes, build-web]
-  #   if: needs.detect-changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
+  deploy-web:
+    runs-on: windows-latest
+    needs: [detect-changes, build-web]
+    if: needs.detect-changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
 
-  #   steps:
-  #     - name: Wait for API deployment if it was also changed
-  #       if: needs.detect-changes.outputs.api == 'true'
-  #       shell: pwsh
-  #       run: |
-  #         Write-Host "API and Web both changed - waiting for API deployment..."
-  #         $maxRetries = 120
-  #         $retryCount = 0
+    steps:
+      - name: Wait for API deployment if it was also changed
+        if: needs.detect-changes.outputs.api == 'true'
+        shell: pwsh
+        run: |
+          Write-Host "API and Web both changed - waiting for API deployment..."
+          $maxRetries = 120
+          $retryCount = 0
 
-  #         while ($retryCount -lt $maxRetries) {
-  #           try {
-  #             $resp = Invoke-WebRequest -Uri "${{ env.API_HEALTH_URL }}" -UseBasicParsing -TimeoutSec 5
-  #             if ($resp.StatusCode -eq 200) {
-  #               Write-Host "✅ API is ready for Web deployment"
-  #               exit 0
-  #             }
-  #           } catch {
-  #             # API not ready yet, continue waiting
-  #           }
+          while ($retryCount -lt $maxRetries) {
+            try {
+              $resp = Invoke-WebRequest -Uri "${{ env.API_HEALTH_URL }}" -UseBasicParsing -TimeoutSec 5
+              if ($resp.StatusCode -eq 200) {
+                Write-Host "✅ API is ready for Web deployment"
+                exit 0
+              }
+            } catch {
+              # API not ready yet, continue waiting
+            }
 
-  #           $retryCount++
-  #           Start-Sleep -Seconds 2
-  #         }
+            $retryCount++
+            Start-Sleep -Seconds 2
+          }
 
-  #         Write-Warning "⚠️  API health check timed out - proceeding with Web deployment anyway"
-  #         exit 0
+          Write-Warning "⚠️  API health check timed out - proceeding with Web deployment anyway"
+          exit 0
 
-  #     - name: Download Web artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: web-dist
-  #         path: ${{ env.ANGULAR_DIST_PATH }}/
+      - name: Download Web artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: ${{ env.ANGULAR_DIST_PATH }}/
 
-  #     - name: Deploy Angular using FTP
-  #       uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-  #       with:
-  #         server: ${{ secrets.FTP_SERVER }}
-  #         username: ${{ secrets.FTP_USERNAME }}
-  #         password: ${{ secrets.FTP_PASSWORD }}
-  #         local-dir: ${{ env.ANGULAR_DIST_PATH }}/
-  #         server-dir: /tys/
-  #         dangerous-clean-slate: false
+      - name: Deploy Angular using FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ${{ env.ANGULAR_DIST_PATH }}/
+          server-dir: /recipes/
+          dangerous-clean-slate: false
 
-  #     - name: Health check Web
-  #       shell: pwsh
-  #       run: |
-  #         if ([string]::IsNullOrWhiteSpace($env:WEB_HEALTH_URL)) {
-  #           Write-Error "WEB_HEALTH_URL is not set"
-  #         }
-  #         Write-Host "Waiting 5 seconds for Web to start..."
-  #         Start-Sleep -Seconds 5
+      - name: Health check Web
+        shell: pwsh
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:WEB_HEALTH_URL)) {
+            Write-Error "WEB_HEALTH_URL is not set"
+          }
+          Write-Host "Waiting 5 seconds for Web to start..."
+          Start-Sleep -Seconds 5
 
-  #         $retries = 5
-  #         for ($i=1; $i -le $retries; $i++) {
-  #           try {
-  #             $resp = Invoke-WebRequest -UseBasicParsing -TimeoutSec 10 -Uri $env:WEB_HEALTH_URL
-  #             if ($resp.StatusCode -ge 200 -and $resp.StatusCode -lt 500) {
-  #               Write-Host "✅ Web healthy (status $($resp.StatusCode))"
-  #               exit 0
-  #             }
-  #             throw "Unexpected status code $($resp.StatusCode)"
-  #           } catch {
-  #             Write-Host "Attempt $i failed: $_"
-  #             if ($i -eq $retries) { throw }
-  #             Start-Sleep -Seconds 5
-  #           }
-  #         }
+          $retries = 5
+          for ($i=1; $i -le $retries; $i++) {
+            try {
+              $resp = Invoke-WebRequest -UseBasicParsing -TimeoutSec 10 -Uri $env:WEB_HEALTH_URL
+              if ($resp.StatusCode -ge 200 -and $resp.StatusCode -lt 500) {
+                Write-Host "✅ Web healthy (status $($resp.StatusCode))"
+                exit 0
+              }
+              throw "Unexpected status code $($resp.StatusCode)"
+            } catch {
+              Write-Host "Attempt $i failed: $_"
+              if ($i -eq $retries) { throw }
+              Start-Sleep -Seconds 5
+            }
+          }
 
   #     - name: Download previous successful Web artifact for rollback
   #       if: failure()
@@ -380,5 +380,5 @@ jobs:
   #         username: ${{ secrets.FTP_USERNAME }}
   #         password: ${{ secrets.FTP_PASSWORD }}
   #         local-dir: ./rollback-web/
-  #         server-dir: /tys/
+  #         server-dir: /recipes/
   #         dangerous-clean-slate: false
