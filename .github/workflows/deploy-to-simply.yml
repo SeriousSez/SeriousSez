@@ -14,8 +14,8 @@ env:
   NODE_VERSION: "20.x"
   ANGULAR_WORKING_DIR: "./SeriousSez"
   ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez"
-  # API_HEALTH_URL: "https://recipe-hub.api.sezginsahin.dk/api/health"
-  # WEB_HEALTH_URL: "https://tysclassic.com/"
+  # API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/api/health"
+  # WEB_HEALTH_URL: "https://recipes.sezginsahin.dk/"
 
 jobs:
   detect-changes:
@@ -83,7 +83,7 @@ jobs:
             JWTSettings = @{
               securityKey = "SeriousSezSecretKey 85738a5f-871a-4cd1-a03c-bfdfa352d3d2"
               validIssuer = "SeriousSez"
-              validAudience = "https://recipe-hub.api.sezginsahin.dk/"
+              validAudience = "https://recipes.api.sezginsahin.dk/"
               expiryInMinutes = 60
             }
             AllowedHosts = '*'
