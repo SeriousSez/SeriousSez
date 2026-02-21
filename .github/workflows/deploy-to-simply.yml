@@ -195,7 +195,7 @@ jobs:
       #     username: ${{ secrets.FTP_USERNAME }}
       #     password: ${{ secrets.FTP_PASSWORD }}
       #     local-dir: ${{ env.PUBLISH_PATH }}/
-      #     server-dir: /serioussez.api/
+      #     server-dir: /recipes.api/
       #     dangerous-clean-slate: false
 
       - name: Wait for app to go offline
@@ -209,7 +209,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ${{ env.PUBLISH_PATH }}/
-          server-dir: /serioussez.api/
+          server-dir: /recipes.api/
           dangerous-clean-slate: false
 
       # - name: Remove app_offline.htm from local publish folder
@@ -225,7 +225,7 @@ jobs:
       #     username: ${{ secrets.FTP_USERNAME }}
       #     password: ${{ secrets.FTP_PASSWORD }}
       #     local-dir: ${{ env.PUBLISH_PATH }}/
-      #     server-dir: /serioussez.api/
+      #     server-dir: /recipes.api/
       #     dangerous-clean-slate: false
 
       - name: Wait for app to restart
