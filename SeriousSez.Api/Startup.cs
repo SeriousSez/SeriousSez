@@ -216,8 +216,11 @@ namespace SeriousSez
             // app.UseHttpsRedirection();
 
             // Swagger configuration
-            app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SeriousSez v1"));
+            if (env.IsDevelopment())
+            {
+                app.UseSwagger();
+                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SeriousSez v1"));
+            }
 
             app.UseRouting();
             app.UseAuthentication();
