@@ -108,11 +108,6 @@ jobs:
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
 
-      - name: Ensure API logs directory exists
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path "${{ env.PUBLISH_PATH }}/logs" -Force | Out-Null
-
       - name: Upload API artifact
         uses: actions/upload-artifact@v4
         with:
