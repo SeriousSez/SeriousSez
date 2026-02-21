@@ -13,7 +13,7 @@ env:
   RUNTIME_IDENTIFIER: "win-x64"
   NODE_VERSION: "20.x"
   ANGULAR_WORKING_DIR: "./SeriousSez"
-  ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez"
+  ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez/browser"
   API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/api/health"
   WEB_HEALTH_URL: "https://recipes.sezginsahin.dk/"
 
@@ -148,7 +148,7 @@ jobs:
         working-directory: ${{ env.ANGULAR_WORKING_DIR }}
         shell: pwsh
         run: |
-          $dist = Join-Path "dist/SeriousSez" "web.config"
+          $dist = Join-Path "dist/SeriousSez/browser" "web.config"
           if (-not (Test-Path $dist)) {
             Copy-Item "src/web.config" $dist -Force
           }
