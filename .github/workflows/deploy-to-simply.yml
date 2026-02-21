@@ -14,7 +14,7 @@ env:
   NODE_VERSION: "20.x"
   ANGULAR_WORKING_DIR: "./SeriousSez"
   ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez/browser"
-  API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/health/ping"
+  API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/api/health/ping"
   WEB_HEALTH_URL: "https://recipes.sezginsahin.dk/"
 
 jobs:
@@ -102,10 +102,16 @@ jobs:
         run: |
           dotnet publish ${{ env.PROJECT_PATH }} `
             --configuration Release `
-            --self-contained false `
+            --runtime ${{ env.RUNTIME_IDENTIFIER }} `
+            --self-contained true `
             /p:AspNetCoreHostingModel=OutOfProcess `
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
+
+      - name: Ensure API logs directory exists
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path "${{ env.PUBLISH_PATH }}/logs" -Force | Out-Null
 
       - name: Upload API artifact
         uses: actions/upload-artifact@v4
