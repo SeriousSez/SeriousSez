@@ -242,12 +242,25 @@ namespace SeriousSez
 
         private void SetupDatabase(IServiceCollection services)
         {
-#if DEBUG
-            services.AddDbContext<SeriousContext>(options => options.UseInMemoryDatabase(databaseName: "SeriousSez"));
-#else
+            var connectionString = Configuration.GetConnectionString("MySql");
+
             services.AddDbContext<SeriousContext>(options =>
-                options.UseMySql(Configuration.GetConnectionString("MySql"), new MySqlServerVersion(new Version(8, 0, 11))));
-#endif
+            {
+                if (string.IsNullOrWhiteSpace(connectionString))
+                {
+                    options.UseInMemoryDatabase(databaseName: "SeriousSez");
+                    return;
+                }
+
+                try
+                {
+                    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 11)));
+                }
+                catch
+                {
+                    options.UseInMemoryDatabase(databaseName: "SeriousSez");
+                }
+            });
 
             services.AddAutoMapper(cfg =>
             {
