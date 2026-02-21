@@ -103,8 +103,6 @@ jobs:
           dotnet publish ${{ env.PROJECT_PATH }} `
             --configuration Release `
             --runtime ${{ env.RUNTIME_IDENTIFIER }} `
-            --self-contained true `
-            /p:AspNetCoreHostingModel=OutOfProcess `
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
 
