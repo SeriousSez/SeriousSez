@@ -14,7 +14,7 @@ env:
   NODE_VERSION: "20.x"
   ANGULAR_WORKING_DIR: "./SeriousSez"
   ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez/browser"
-  API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/api/health"
+  API_HEALTH_URL: "https://recipes.api.sezginsahin.dk/health/ping"
   WEB_HEALTH_URL: "https://recipes.sezginsahin.dk/"
 
 jobs:
@@ -102,8 +102,8 @@ jobs:
         run: |
           dotnet publish ${{ env.PROJECT_PATH }} `
             --configuration Release `
-            --runtime ${{ env.RUNTIME_IDENTIFIER }} `
-            --self-contained true `
+            --self-contained false `
+            /p:AspNetCoreHostingModel=InProcess `
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
 
@@ -188,15 +188,15 @@ jobs:
           "@
           Set-Content -Path "${{ env.PUBLISH_PATH }}/app_offline.htm" -Value $content
 
-      # - name: Deploy app_offline.htm to take app offline
-      #   uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      #   with:
-      #     server: ${{ secrets.FTP_SERVER }}
-      #     username: ${{ secrets.FTP_USERNAME }}
-      #     password: ${{ secrets.FTP_PASSWORD }}
-      #     local-dir: ${{ env.PUBLISH_PATH }}/
-      #     server-dir: /recipes.api/
-      #     dangerous-clean-slate: false
+      - name: Deploy app_offline.htm to take app offline
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ${{ env.PUBLISH_PATH }}/
+          server-dir: /recipes.api/
+          dangerous-clean-slate: false
 
       - name: Wait for app to go offline
         shell: pwsh
@@ -212,21 +212,21 @@ jobs:
           server-dir: /recipes.api/
           dangerous-clean-slate: false
 
-      # - name: Remove app_offline.htm from local publish folder
-      #   shell: pwsh
-      #   run: |
-      #     Remove-Item "${{ env.PUBLISH_PATH }}/app_offline.htm" -Force -ErrorAction SilentlyContinue
-      #     Write-Host "Removed app_offline.htm from local folder"
+      - name: Remove app_offline.htm from local publish folder
+        shell: pwsh
+        run: |
+          Remove-Item "${{ env.PUBLISH_PATH }}/app_offline.htm" -Force -ErrorAction SilentlyContinue
+          Write-Host "Removed app_offline.htm from local folder"
 
-      # - name: Deploy to remove app_offline.htm from server
-      #   uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      #   with:
-      #     server: ${{ secrets.FTP_SERVER }}
-      #     username: ${{ secrets.FTP_USERNAME }}
-      #     password: ${{ secrets.FTP_PASSWORD }}
-      #     local-dir: ${{ env.PUBLISH_PATH }}/
-      #     server-dir: /recipes.api/
-      #     dangerous-clean-slate: false
+      - name: Deploy to remove app_offline.htm from server
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ${{ env.PUBLISH_PATH }}/
+          server-dir: /recipes.api/
+          dangerous-clean-slate: false
 
       - name: Wait for app to restart
         shell: pwsh
