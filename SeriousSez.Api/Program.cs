@@ -20,7 +20,11 @@ namespace SeriousSez
             {
                 var host = CreateHostBuilder(args).Build();
 
-                CreateDbIfNotExists(host);
+                var environment = host.Services.GetRequiredService<IHostEnvironment>();
+                if (environment.IsDevelopment())
+                {
+                    CreateDbIfNotExists(host);
+                }
 
                 host.Run();
             }
@@ -74,12 +78,6 @@ namespace SeriousSez
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var env = services.GetRequiredService<IHostEnvironment>();
-                    if (!env.IsDevelopment())
-                    {
-                        return;
-                    }
-
                     var context = services.GetRequiredService<SeriousContext>();
                     context.Database.EnsureCreated();
                     // DbInitializer.Initialize(context);
