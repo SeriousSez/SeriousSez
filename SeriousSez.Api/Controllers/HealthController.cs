@@ -11,11 +11,5 @@ namespace SeriousSez.Api.Controllers
         {
             return new OkResult();
         }
-
-        [HttpGet("ping3")]
-        public IActionResult Ping2()
-        {
-            return new OkResult();
-        }
     }
 }

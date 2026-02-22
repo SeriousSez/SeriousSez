@@ -61,14 +61,15 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           $required = @(
-            @{ Name = 'MYSQL_CONNECTION_STRING'; Value = $env:MYSQL_CONNECTION_STRING },
-            @{ Name = 'OPENAI_API_KEY'; Value = $env:OPENAI_API_KEY }
+            @{ Name = 'MYSQL_CONNECTION_STRING'; Value = $env:MYSQL_CONNECTION_STRING }
           )
 
           $missing = $required | Where-Object { -not $_.Value }
           if ($missing) {
             throw "Missing required secrets: $($missing.Name -join ', ')"
           }
+
+          $aiProvider = if ([string]::IsNullOrWhiteSpace($env:OPENAI_API_KEY)) { "Wikipedia" } else { "OpenAI" }
 
           $config = @{
             ConnectionStrings = @{
@@ -90,7 +91,7 @@ jobs:
             }
             AIImageGeneration = @{
               Enabled = $true
-              Provider = "OpenAI"
+              Provider = $aiProvider
               OpenAIApiKey = $env:OPENAI_API_KEY
               OpenAIEndpoint = "https://api.openai.com/v1/images/edits"
               OpenAIGenerationEndpoint = "https://api.openai.com/v1/images/generations"
