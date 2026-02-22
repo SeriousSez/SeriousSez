@@ -124,6 +124,23 @@ namespace SeriousSez.ApplicationService.Services
             return recipe;
         }
 
+        public async Task<RecipeResponse> Get(Guid id)
+        {
+            var recipe = await _recipeRepository.GetFull(id);
+            if (recipe == null)
+                return null;
+
+            var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
+
+            recipeResponse.Ingredients = new List<IngredientResponse>();
+            foreach (var recipeIngredient in recipe.RecipeIngredients)
+            {
+                recipeResponse.Ingredients.Add(CreateIngredientResponeModel(recipeIngredient));
+            }
+
+            return recipeResponse;
+        }
+
         public async Task<RecipeResponse> Get(string title, string creator)
         {
             var recipe = await _recipeRepository.GetByTitleAndCreatorFull(title, creator);
@@ -135,7 +152,7 @@ namespace SeriousSez.ApplicationService.Services
             recipeResponse.Ingredients = new List<IngredientResponse>();
             foreach (var recipeIngredient in recipe.RecipeIngredients)
             {
-                recipeResponse.Ingredients.Add(await CreateIngredientResponeModel(recipeIngredient));
+                recipeResponse.Ingredients.Add(CreateIngredientResponeModel(recipeIngredient));
             }
 
             _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipeResponse);
@@ -152,10 +169,6 @@ namespace SeriousSez.ApplicationService.Services
             {
                 var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
                 recipeResponse.Ingredients = new List<IngredientResponse>();
-                foreach (var recipeIngredient in recipe.RecipeIngredients)
-                {
-                    recipeResponse.Ingredients.Add(await CreateIngredientResponeModel(recipeIngredient));
-                }
 
                 recipeList.Add(recipeResponse);
             }
@@ -172,10 +185,6 @@ namespace SeriousSez.ApplicationService.Services
             {
                 var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
                 recipeResponse.Ingredients = new List<IngredientResponse>();
-                foreach (var recipeIngredient in recipe.RecipeIngredients)
-                {
-                    recipeResponse.Ingredients.Add(await CreateIngredientResponeModel(recipeIngredient));
-                }
 
                 recipeList.Add(recipeResponse);
             }
@@ -227,7 +236,19 @@ namespace SeriousSez.ApplicationService.Services
             }
 
             recipe.Title = model.Title;
-            recipe.Image = _mapper.Map<Image>(model.Image);
+            if (model.Image == null)
+            {
+                recipe.Image = null;
+            }
+            else if (recipe.Image == null)
+            {
+                recipe.Image = _mapper.Map<Image>(model.Image);
+            }
+            else
+            {
+                recipe.Image.Url = model.Image.Url;
+                recipe.Image.Caption = model.Image.Caption;
+            }
             recipe.Description = model.Description;
             recipe.Instructions = model.Instructions;
             recipe.Portions = model.Portions;
@@ -240,7 +261,7 @@ namespace SeriousSez.ApplicationService.Services
             response.Ingredients = new List<IngredientResponse>();
             foreach (var recipeIngredient in recipe.RecipeIngredients)
             {
-                response.Ingredients.Add(await CreateIngredientResponeModel(recipeIngredient));
+                response.Ingredients.Add(CreateIngredientResponeModel(recipeIngredient));
             }
 
             return response;
@@ -281,9 +302,9 @@ namespace SeriousSez.ApplicationService.Services
             return recipe;
         }
 
-        private async Task<IngredientResponse> CreateIngredientResponeModel(RecipeIngredient recipeIngredient)
+        private IngredientResponse CreateIngredientResponeModel(RecipeIngredient recipeIngredient)
         {
-            var ingredient = await _ingredientRepository.Get(recipeIngredient.Ingredient.Id);
+            var ingredient = recipeIngredient.Ingredient;
             var response = new IngredientResponse
             {
                 Name = ingredient.Name,

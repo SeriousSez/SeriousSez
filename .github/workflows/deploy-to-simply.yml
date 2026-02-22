@@ -86,6 +86,12 @@ jobs:
               validAudience = "https://recipes.api.sezginsahin.dk/"
               expiryInMinutes = 60
             }
+            AIImageGeneration = @{
+              Enabled = $true
+              Provider = "Wikipedia"
+              StableDiffusionEndpoint = "http://127.0.0.1:7860"
+              StyleReferenceImagePath = "..\\SeriousSez\\src\\assets\\images\\milk.jpg"
+            }
             AllowedHosts = '*'
           }
 

@@ -15,16 +15,20 @@
 }
 
 @if (loading) {
-<app-spinner [centered]="true"></app-spinner>
+<div class="text-center my-4">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
 }
 
 @if (loading === false) {
 <table class="table table-hover caption-top">
   <caption>{{ showFavorites ? 'Favorite recipes' : 'All recipes' }}</caption>
-  @if (settings.RecipesTheme === 'Pretty') {
+  @if (settings.recipesTheme === 'Pretty') {
   <app-pretty [recipes]="shownRecipes"></app-pretty>
   }
-  @if (settings.RecipesTheme === 'List') {
+  @if (settings.recipesTheme === 'List') {
   <thead>
     <tr class="cursor-pointer">
       <th scope="col">#</th>
@@ -44,7 +48,7 @@
     </tr>
   </thead>
   }
-  @if (settings.RecipesTheme === 'List') {
+  @if (settings.recipesTheme === 'List') {
   <tbody>
     @for (recipe of shownRecipes; track recipe) {
     <tr>
@@ -52,16 +56,16 @@
         <input class="form-check-input me-1 cursor-pointer" type="checkbox" (click)="toggleRecipeSelected(recipe)">
       </th>
       <td class="cursor-pointer" (click)="openRecipe(recipe)">
-        {{recipe.Title}}
+        {{recipe.title}}
       </td>
       <!-- <td class="cursor-pointer instructions" (click)="openRecipe(recipe)">
             {{recipe.Instructions}}
           </td> -->
       <td class="cursor-pointer creator" (click)="openRecipe(recipe)">
-        {{recipe.Creator}}
+        {{recipe.creator}}
       </td>
       <td class="cursor-pointer" (click)="openRecipe(recipe)">
-        {{displayDateOnly(recipe.Created)}}
+        {{displayDateOnly(recipe.created)}}
       </td>
     </tr>
     }

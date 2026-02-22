@@ -55,9 +55,16 @@ namespace SeriousSez.ApplicationService.Services
             return isFavored;
         }
 
-        public async Task<Favorites> Create(User user)
+        public async Task<Favorites> Create(User user, Recipe recipe = null, Ingredient ingredient = null)
         {
-            return await _favoriteRepository.Create(new Favorites { User = user, Recipes = new List<Recipe>(), Ingredients = new List<Ingredient>() });
+            var favorites = new Favorites
+            {
+                User = user,
+                Recipes = recipe == null ? new List<Recipe>() : new List<Recipe> { recipe },
+                Ingredients = ingredient == null ? new List<Ingredient>() : new List<Ingredient> { ingredient }
+            };
+
+            return await _favoriteRepository.Create(favorites);
         }
 
         public async Task<FavoritesResponse> Recipe(FavoriteRecipeViewModel model)
@@ -72,7 +79,11 @@ namespace SeriousSez.ApplicationService.Services
 
             var favorites = await _favoriteRepository.GetByUserFull(user);
             if (favorites == null)
-                favorites = await Create(user);
+            {
+                favorites = await Create(user, recipe: recipe);
+                _logger.LogTrace("Added Recipe to Favorites on create! Favorites: {@Favorites}", favorites);
+                return _mapper.Map<FavoritesResponse>(favorites);
+            }
 
             var exists = await _favoriteRepository.RecipeFavoriteExists(user, recipe);
             if (exists)
@@ -86,7 +97,7 @@ namespace SeriousSez.ApplicationService.Services
                     favorites.Recipes = new List<Recipe>();
 
                 favorites.Recipes.Add(recipe);
-                _logger.LogTrace("Added Recipe from Favorites! Favorites: {@Favorites}", favorites);
+                _logger.LogTrace("Added Recipe to Favorites! Favorites: {@Favorites}", favorites);
             }
 
             await _favoriteRepository.Update(favorites);
@@ -106,7 +117,11 @@ namespace SeriousSez.ApplicationService.Services
 
             var favorites = await _favoriteRepository.GetByUserFull(user);
             if (favorites == null)
-                favorites = await Create(user);
+            {
+                favorites = await Create(user, ingredient: ingredient);
+                _logger.LogTrace("Added Ingredient to Favorites on create! Favorites: {@Favorites}", favorites);
+                return _mapper.Map<FavoritesResponse>(favorites);
+            }
 
             var exists = await _favoriteRepository.IngredientFavoriteExists(user, ingredient);
             if (exists)

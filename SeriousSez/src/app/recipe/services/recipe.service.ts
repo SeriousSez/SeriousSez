@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { ConfigService } from '../../shared/utils/config.service';
 
-import {BaseService} from '../../shared/services/base.service';
+import { BaseService } from '../../shared/services/base.service';
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -31,11 +31,19 @@ export class RecipeService extends BaseService {
   }
 
   getRecipe(title: string, creator: string): Observable<Recipe> {
-    return this.http.get<Recipe>(this.baseUrl + `/recipe/get?title=${title}&creator=${creator}`, this.httpOptions)
+    return this.http.get<Recipe>(this.baseUrl + `/recipe/get?title=${encodeURIComponent(title)}&creator=${encodeURIComponent(creator)}`, this.httpOptions)
       .pipe(map(details => {
         return details;
       }, (error: any) => console.log(error, "fails")
-    ));
+      ));
+  }
+
+  getRecipeById(id: string): Observable<Recipe> {
+    return this.http.get<Recipe>(this.baseUrl + `/recipe/getbyid/${encodeURIComponent(id)}`, this.httpOptions)
+      .pipe(map(details => {
+        return details;
+      }, (error: any) => console.log(error, "fails")
+      ));
   }
 
   getRecipes(): Observable<Recipe[]> {
@@ -43,7 +51,7 @@ export class RecipeService extends BaseService {
       .pipe(map(details => {
         return details;
       }, (error: any) => console.log(error, "fails")
-    ));
+      ));
   }
 
   getRecipesByCreator(creator: string): Observable<Recipe[]> {
@@ -51,7 +59,7 @@ export class RecipeService extends BaseService {
       .pipe(map(details => {
         return details;
       }, (error: any) => console.log(error, "fails")
-    ));
+      ));
   }
 
   create(recipe: RecipeCreation): Observable<Recipe> {
@@ -59,7 +67,7 @@ export class RecipeService extends BaseService {
       .pipe(map(details => {
         return details;
       }, (error: any) => console.log(error, "fails")
-    ));
+      ));
   }
 
   addIngredients(recipe: Recipe, ingredients: Ingredient[]): Observable<Ingredient[]> {
@@ -67,7 +75,7 @@ export class RecipeService extends BaseService {
       .pipe(map(ingredients => {
         return ingredients;
       }, (error: any) => console.log(error, "fails")
-    ));
+      ));
   }
 
   update(recipe: RecipeUpdate): Observable<RecipeUpdate> {
@@ -75,15 +83,15 @@ export class RecipeService extends BaseService {
       .pipe(map(details => {
         return details;
       }, (error: any) => console.log(error, "fails")
-    ));
+      ));
   }
 
   deleteRecipes(recipes: string[]): Observable<Recipe[]> {
     return this.http.post<Recipe[]>(this.baseUrl + "/recipe/delete", recipes, this.httpOptions)
-        .pipe(map(recipes => {
-          return recipes;
-        }, (error: any) => console.log(error, "fails")
-    ));
+      .pipe(map(recipes => {
+        return recipes;
+      }, (error: any) => console.log(error, "fails")
+      ));
   }
 
   deleteRecipeIngredient(ingredients: Ingredient[]): Observable<Ingredient[]> {
@@ -91,6 +99,6 @@ export class RecipeService extends BaseService {
       .pipe(map(ingredients => {
         return ingredients;
       }, (error: any) => console.log(error, "fails")
-    ));
+      ));
   }
 }

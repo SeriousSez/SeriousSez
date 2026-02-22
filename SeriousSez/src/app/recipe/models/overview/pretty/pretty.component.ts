@@ -1,87 +1,85 @@
+import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common'
 import { Router } from '@angular/router';
-import { UserService } from 'src/app/shared/services/user.service';
-import { FavoriteService } from 'src/app/shared/services/favorite.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { Recipe } from '../../models/recipe.interface';
 import { Ingredient } from '../../models/ingredient.interface';
-import { RecipeService } from '../../services/recipe.service';
 import { UtilityService } from 'src/app/shared/utils/utility.service';
 
 @Component({
-    selector: 'app-pretty',
-    templateUrl: './pretty.component.html',
-    styleUrls: ['./pretty.component.css'],
-    standalone: false
+  selector: 'app-pretty',
+  templateUrl: './pretty.component.html',
+  styleUrls: ['./pretty.component.css'],
+  standalone: true,
+  imports: [CommonModule]
 })
 export class PrettyComponent implements OnInit {
-  @Input() recipes: Recipe[] = [];
-  @Input() favoredRecipes: Recipe[] = [];
+  @Input() recipes: any[] = [];
+  @Input() favoredRecipes: any[] = [];
 
-  public recipeList: Recipe[] = [];
+  public recipeList: any[] = [];
   public groceryList: Ingredient[] = [];
 
-  public shownRecipes: Recipe[] = [];
-  public selectedRecipes: Recipe[] = [];
+  public shownRecipes: any[] = [];
+  public selectedRecipes: any[] = [];
   public showFavorites: boolean = false;
 
   public sortSetting: string = 'created';
   public ascending: boolean = true;
 
-  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, public utilityService: UtilityService, private datepipe: DatePipe, private router: Router) {
-    
+  constructor(private groceryService: GroceryService, public utilityService: UtilityService, private router: Router) {
+
   }
 
   ngOnInit(): void {
     this.getGroceryLists();
   }
 
-  getGroceryLists(){
+  getGroceryLists() {
     this.recipeList = this.groceryService.getRecipeList();
     this.groceryList = this.groceryService.getIngredientList();
   }
 
-  addSelectedRecipesToGroceryList(){
+  addSelectedRecipesToGroceryList() {
     this.selectedRecipes.forEach(recipe => {
       this.groceryService.toggleRecipeToList(recipe);
       this.recipeList = this.groceryService.getRecipeList();
     });
   }
 
-  toggleRecipeSelected(recipe: Recipe){
+  toggleRecipeSelected(recipe: any) {
     var index = this.selectedRecipes.indexOf(recipe, 0);
     if (index > -1) {
       this.selectedRecipes.splice(index, 1);
-    }else{
+    } else {
       this.selectedRecipes.push(recipe);
     }
   }
 
-  toggleDisplay(){
+  toggleDisplay() {
     this.showFavorites = !this.showFavorites;
-    if(this.showFavorites){
-      if(this.favoredRecipes == null) this.favoredRecipes = [];
+    if (this.showFavorites) {
+      if (this.favoredRecipes == null) this.favoredRecipes = [];
 
       this.shownRecipes = this.favoredRecipes;
-    }else{
+    } else {
       this.shownRecipes = this.recipes;
     }
   }
 
-  openRecipe(recipe: Recipe){
-    this.router.navigate([`recipe/${recipe.Title.toLocaleLowerCase()}/${recipe.Creator.toLocaleLowerCase()}`]);
+  openRecipe(recipe: any) {
+    this.router.navigate([`recipe/${recipe.Id}/${recipe.Title.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}`]);
   }
 
-  displayDateOnly(created: string){
+  displayDateOnly(created: string) {
     this.utilityService.displayDateOnly(created);
   }
 
-  sort(sortSetting: string){
-    if(this.sortSetting != sortSetting) this.ascending = true;
+  sort(sortSetting: string) {
+    if (this.sortSetting != sortSetting) this.ascending = true;
     this.sortSetting = sortSetting;
 
-    switch(sortSetting){
+    switch (sortSetting) {
       case 'title':
         this.shownRecipes.sort((a, b) => this.ascending == true ? a.Title.localeCompare(b.Title) : -a.Title.localeCompare(b.Title));
         this.ascending = !this.ascending;

@@ -12,6 +12,7 @@ namespace SeriousSez.ApplicationService.Services
         Task<RecipeResponse> Create(RecipeViewModel model);
         Task<RecipeResponse> AddIngredients(List<IngredientResponse> ingredients, string title, string creator);
         Task<Recipe> Get(RecipeResponse model);
+        Task<RecipeResponse> Get(Guid id);
         Task<RecipeResponse> Get(string title, string creator);
         Task<IEnumerable<RecipeResponse>> GetAll();
         Task<IEnumerable<RecipeResponse>> GetAll(string creator);

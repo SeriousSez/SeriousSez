@@ -23,6 +23,8 @@ using SeriousSez.Infrastructure.Repositories.Fridge;
 using SeriousSez.Infrastructure.Repositories.Grocery;
 using System;
 using System.Text;
+using SeriousSez.Api.Services;
+using SeriousSez.Api.Converters;
 
 namespace SeriousSez
 {
@@ -59,6 +61,9 @@ namespace SeriousSez
             services.AddScoped<IRecipeService, RecipeService>();
             services.AddScoped<IIngredientService, IngredientService>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddHttpClient<LocalStableDiffusionIngredientImageGenerator>();
+            services.AddHttpClient<WikipediaIngredientImageGenerator>();
+            services.AddScoped<IIngredientImageGenerator, IngredientImageGenerator>();
             services.AddScoped<IFavoriteService, FavoriteService>();
             services.AddScoped<IGroceryService, GroceryService>();
             services.AddScoped<IFridgeService, FridgeService>();
@@ -140,6 +145,7 @@ namespace SeriousSez
             {
                 options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                options.JsonSerializerOptions.Converters.Add(new ImageViewModelJsonConverter());
             });
             services.AddSwaggerGen(c =>
             {

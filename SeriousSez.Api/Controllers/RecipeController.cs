@@ -122,6 +122,20 @@ namespace SeriousSez.Api.Controllers
             return new OkObjectResult(recipe);
         }
 
+        [HttpGet("getbyid/{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var recipe = await _recipeService.Get(id);
+            if (recipe == null)
+            {
+                _logger.LogError("Failed to fetch recipe by id! Id: {RecipeId}", id);
+                return new NotFoundObjectResult("Failed to fetch recipe!");
+            }
+
+            _logger.LogTrace("Recipe fetched by id! Recipe: {@Recipe}", recipe);
+            return new OkObjectResult(recipe);
+        }
+
         [HttpGet("getallbycreator")]
         public async Task<IActionResult> GetAllByCreator(string creator)
         {

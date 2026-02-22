@@ -36,97 +36,100 @@ export class ingredientModal implements OnInit {
 
     ngOnInit(): void {
         this.imageUrl = this.defaultImageUrl;
-        
+
         this.ingredientForm = this.formBuilder.group({
             name: ['', Validators.required],
             description: ['', Validators.required],
-            imageCaption: [''],
-            Image: ['']
+            imageCaption: ['']
         });
     }
-    
+
     create({ value, valid }: { value: IngredientCreation, valid: boolean }) {
         this.submitted = true;
         this.isRequesting = true;
-        this.errors='';
+        this.errors = '';
 
-        if(this.checkForExisting(value)){
+        if (this.checkForExisting(value)) {
             this.isRequesting = false;
             this.errors = 'This ingredient exists already!';
             return;
         }
 
-        value.image = { url: this.imageUrl, caption: value.imageCaption }
+        if (this.imageUrl && this.imageUrl !== this.defaultImageUrl) {
+            value.image = { url: this.imageUrl, caption: value.imageCaption };
+        } else {
+            value.image = null;
+        }
 
-        if (valid){
+        if (valid) {
             this.ingredientService.create(value)
-            .subscribe(result  => {
-                this.finish.next(this.createIngredientModel());
-                this.resetForm();
-                this.router.navigate(['dashboard/ingredients']);
-            }, errors => {
-                this.isRequesting = false;
-                this.errors = errors.error;
-            });
+                .subscribe(result => {
+                    this.finish.next(this.createIngredientModel());
+                    this.resetForm();
+                    this.router.navigate(['dashboard/ingredients']);
+                }, errors => {
+                    this.isRequesting = false;
+                    this.errors = errors.error;
+                });
         }
     }
 
-    createIngredientModel(){
-      var model: Ingredient = {
-          name: this.ingredientForm.controls['name'].value,
-          description: this.ingredientForm.controls['description'].value,
-          image: { id: '', url: this.imageUrl, caption: this.ingredientForm.controls['imageCaption'].value },
-          amount: 0,
-          amountType: '',
-          created: Date.now().toString()
-      }
+    createIngredientModel() {
+        var model: Ingredient = {
+            name: this.ingredientForm.controls['name'].value,
+            description: this.ingredientForm.controls['description'].value,
+            image: { id: '', url: this.imageUrl || this.defaultImageUrl, caption: this.ingredientForm.controls['imageCaption'].value },
+            amount: 0,
+            amountType: '',
+            created: Date.now().toString()
+        }
 
-      return model;
+        return model;
     }
 
-    resetForm(){
-      this.ingredientForm.reset();
+    resetForm() {
+        this.ingredientForm.reset();
     }
 
-    checkForExisting(ingredient: IngredientCreation){
+    checkForExisting(ingredient: IngredientCreation) {
         return this.ingredients.some(i => i.name.toLowerCase() == ingredient.name.toLowerCase());
     }
 
-    handleFileInput(event: any){
-        if(event.target.files.length < 1){
-        this.imageUrl = "";
-        this.showCropOverlay = false;
-        return;
+    handleFileInput(event: any) {
+        if (event.target.files.length < 1) {
+            this.imageUrl = "";
+            this.showCropOverlay = false;
+            return;
         }
-        
+
         this.showCropOverlay = true;
         this.imageChangedEvent = event;
         this.fileToUpload = event.target.files.item(0);
 
-        if(this.fileToUpload == null)
-        return
+        if (this.fileToUpload == null)
+            return
 
         var reader = new FileReader();
         reader.onload = (event: any) => {
-        this.imageUrl = event.target.result;
+            this.imageUrl = event.target.result;
         }
 
         reader.readAsDataURL(this.fileToUpload);
     }
 
-    removeImage(){ 
+    removeImage() {
         this.imageUrl = this.defaultImageUrl;
         this.savedOrCanceled = false;
     }
 
-    cancelImageUpload(){
+    cancelImageUpload() {
         this.imageUrl = this.defaultImageUrl;
         this.savedOrCanceled = false;
         this.showCropOverlay = false;
     }
-    
+
     imageCropped(event: ImageCroppedEvent) {
-        if(event.base64 == null) return;
+        if (event.base64 == null) return;
 
         this.imageUrl = event.base64;
         this.savedOrCanceled = true;
@@ -140,7 +143,7 @@ export class ingredientModal implements OnInit {
     loadImageFailed() {
         // show message
     }
-    
+
     get f(): { [key: string]: AbstractControl } {
         return this.ingredientForm.controls;
     }

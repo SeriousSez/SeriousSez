@@ -1,0 +1,48 @@
+using Microsoft.Extensions.Configuration;
+using SeriousSez.ApplicationService.Services;
+using SeriousSez.Domain.Models;
+using System;
+using System.Threading.Tasks;
+
+namespace SeriousSez.Api.Services
+{
+    public class IngredientImageGenerator : IIngredientImageGenerator
+    {
+        private readonly IConfiguration _configuration;
+        private readonly LocalStableDiffusionIngredientImageGenerator _stableDiffusionGenerator;
+        private readonly WikipediaIngredientImageGenerator _wikipediaGenerator;
+
+        public IngredientImageGenerator(
+            IConfiguration configuration,
+            LocalStableDiffusionIngredientImageGenerator stableDiffusionGenerator,
+            WikipediaIngredientImageGenerator wikipediaGenerator)
+        {
+            _configuration = configuration;
+            _stableDiffusionGenerator = stableDiffusionGenerator;
+            _wikipediaGenerator = wikipediaGenerator;
+        }
+
+        public async Task<ImageViewModel> GenerateAsync(string ingredientName, string description)
+        {
+            var section = _configuration.GetSection("AIImageGeneration");
+            var enabled = bool.TryParse(section["Enabled"], out var parsedEnabled) && parsedEnabled;
+            if (!enabled)
+            {
+                return null;
+            }
+
+            var provider = section["Provider"] ?? "Wikipedia";
+
+            if (provider.Equals("StableDiffusion", StringComparison.OrdinalIgnoreCase))
+            {
+                var styled = await _stableDiffusionGenerator.GenerateAsync(ingredientName, description);
+                if (styled != null)
+                {
+                    return styled;
+                }
+            }
+
+            return await _wikipediaGenerator.GenerateAsync(ingredientName, description);
+        }
+    }
+}

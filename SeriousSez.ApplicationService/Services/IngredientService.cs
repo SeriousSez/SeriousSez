@@ -6,6 +6,7 @@ using SeriousSez.Infrastructure.Repositories;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using SeriousSez.Domain.Responses;
+using System;
 
 namespace SeriousSez.ApplicationService.Services
 {
@@ -14,18 +15,35 @@ namespace SeriousSez.ApplicationService.Services
         private readonly ILogger<IngredientService> _logger;
         private readonly IIngredientRepository _ingredientRepository;
         private readonly IImageRepository _imageRepository;
+        private readonly IIngredientImageGenerator _ingredientImageGenerator;
         private readonly IMapper _mapper;
 
-        public IngredientService(ILogger<IngredientService> logger, IIngredientRepository ingredientRepository, IImageRepository imageRepository, IMapper mapper)
+        public IngredientService(
+            ILogger<IngredientService> logger,
+            IIngredientRepository ingredientRepository,
+            IImageRepository imageRepository,
+            IIngredientImageGenerator ingredientImageGenerator,
+            IMapper mapper)
         {
             _logger = logger;
             _ingredientRepository = ingredientRepository;
             _imageRepository = imageRepository;
+            _ingredientImageGenerator = ingredientImageGenerator;
             _mapper = mapper;
         }
 
         public async Task<Ingredient> Create(IngredientViewModel model)
         {
+            if (model.Image == null || string.IsNullOrWhiteSpace(model.Image.Url) || IsPlaceholderImageUrl(model.Image.Url))
+            {
+                model.Image = null;
+                var generatedImage = await _ingredientImageGenerator.GenerateAsync(model.Name, model.Description);
+                if (generatedImage != null)
+                {
+                    model.Image = generatedImage;
+                }
+            }
+
             var ingredient = _mapper.Map<Ingredient>(model);
             await _ingredientRepository.Create(ingredient);
 
@@ -88,6 +106,17 @@ namespace SeriousSez.ApplicationService.Services
             _logger.LogTrace("Ingredient deleted! Ingredient: {@Ingredient}", ingredient);
 
             return ingredient;
+        }
+
+        private static bool IsPlaceholderImageUrl(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                return true;
+            }
+
+            var normalized = url.Replace("\\", "/").ToLowerInvariant();
+            return normalized.Contains("/assets/images/");
         }
     }
 }

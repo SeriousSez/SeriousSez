@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnInit, ViewChildren } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { ImageCroppedEvent } from 'ngx-image-cropper';
 import { Subscription } from 'rxjs';
 import { FavoriteRecipe } from 'src/app/shared/models/favorite-recipe.interface';
@@ -32,6 +33,7 @@ export class RecipeComponent implements OnInit {
 
   public title: string;
   public creator: string;
+  public recipeId: string | null = null;
 
   public recipe: Recipe;
   public ingredientsToDelete: Ingredient[] = [];
@@ -85,9 +87,10 @@ export class RecipeComponent implements OnInit {
     toolbarPosition: 'top'
   };
 
-  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService) {
-    this.title = activatedRoute.snapshot.params['title'];
-    this.creator = activatedRoute.snapshot.params['creator'];
+  constructor(private activatedRoute: ActivatedRoute, private datepipe: DatePipe, private router: Router, public utilityService: UtilityService, private recipeService: RecipeService, private groceryService: GroceryService, private ingredientService: IngredientService, private userService: UserService, private safeService: SafeService, private favoriteService: FavoriteService) {
+    this.recipeId = activatedRoute.snapshot.params['id'] || null;
+    this.title = this.utilityService.fromSlug(activatedRoute.snapshot.params['title']);
+    this.creator = decodeURIComponent(activatedRoute.snapshot.params['creator'] || '');
   }
 
   ngOnInit(): void {
@@ -135,21 +138,56 @@ export class RecipeComponent implements OnInit {
 
   // #region setup
   getRecipe() {
-    this.recipeService.getRecipe(this.title, this.creator)
-      .subscribe((recipe: Recipe) => {
-        this.recipe = recipe;
-        this.originalImageUrl = recipe.image != null ? recipe.image.url : "../assets/images/food.png";
-        this.isFavored(recipe);
-        this.isInGroceries(recipe);
-        this.getIngredients();
-
-        if (recipe.creator == this.userService.getUserName()) {
-          this.canEdit = true;
-        }
+    if (this.recipeId) {
+      this.recipeService.getRecipeById(this.recipeId).subscribe((recipe: Recipe) => {
+        this.setRecipeState(recipe);
       },
         error => {
-          //this.notificationService.printErrorMessage(error);
+          if (error?.status === 404) {
+            this.recipeService.getRecipes().subscribe((recipes: Recipe[]) => {
+              var matchingRecipe = recipes.find(r => r.id == this.recipeId);
+              if (matchingRecipe == null) return;
+
+              this.title = matchingRecipe.title;
+              this.creator = matchingRecipe.creator;
+
+              this.recipeService.getRecipe(this.title, this.creator).subscribe((recipe: Recipe) => {
+                this.setRecipeState(recipe);
+              },
+                error => {
+                  //this.notificationService.printErrorMessage(error);
+                });
+            },
+              error => {
+                //this.notificationService.printErrorMessage(error);
+              });
+          }
         });
+
+      return;
+    }
+
+    this.recipeService.getRecipe(this.title, this.creator).subscribe((recipe: Recipe) => {
+      this.setRecipeState(recipe);
+    },
+      error => {
+        //this.notificationService.printErrorMessage(error);
+      });
+  }
+
+  setRecipeState(recipe: Recipe) {
+    this.recipe = recipe;
+    this.title = recipe.title;
+    this.creator = recipe.creator;
+    this.recipeId = recipe.id;
+    this.originalImageUrl = recipe.image != null ? recipe.image.url : "../assets/images/food.png";
+    this.isFavored(recipe);
+    this.isInGroceries(recipe);
+    this.getIngredients();
+
+    if (recipe.creator == this.userService.getUserName()) {
+      this.canEdit = true;
+    }
   }
 
   getIngredients() {
@@ -178,8 +216,12 @@ export class RecipeComponent implements OnInit {
     this.isRequesting = true;
     this.errors = '';
 
-    if (this.recipe.image) {
-      this.recipe.image.url = this.imageUrl;
+    if (this.imageUrl && this.imageUrl !== this.originalImageUrl) {
+      if (!this.recipe.image) {
+        this.recipe.image = { id: '', url: this.imageUrl, caption: '' };
+      } else {
+        this.recipe.image.url = this.imageUrl;
+      }
     }
     this.recipe.ingredients = this.currentIngredients;
 
@@ -204,9 +246,13 @@ export class RecipeComponent implements OnInit {
     }
 
     this.recipeService.update(this.createRecipeUpgradeModel(this.recipe)).subscribe(result => {
-      window.history.pushState({ "title": this.recipe.title.toLowerCase() }, '', window.location.href.replace(this.title.toLowerCase(), this.recipe.title.toLowerCase()));
+      this.router.navigate([
+        `recipe/${this.recipe.id}/${this.utilityService.toSlug(this.recipe.title)}`
+      ], { replaceUrl: true });
 
       this.title = this.recipe.title;
+      this.creator = this.recipe.creator;
+      this.recipeId = this.recipe.id;
       this.edit = false;
       this.isRequesting = false;
     }, errors => {
@@ -345,9 +391,14 @@ export class RecipeComponent implements OnInit {
   handleFileInput(event: any) {
     if (event.target.files.length < 1) {
       this.imageUrl = "";
+      this.showCropOverlay = false;
       return;
     }
 
+    this.showCropOverlay = true;
+    if (!this.recipe.image) {
+      this.recipe.image = { id: '', url: '', caption: '' };
+    }
     this.imageChangedEvent = event;
     this.fileToUpload = event.target.files.item(0);
 
@@ -365,11 +416,13 @@ export class RecipeComponent implements OnInit {
   removeImage() {
     this.imageUrl = this.originalImageUrl;
     this.savedOrCanceled = false;
+    this.showCropOverlay = false;
   }
 
   cancelImageUpload() {
     this.imageUrl = this.originalImageUrl;
     this.savedOrCanceled = false;
+    this.showCropOverlay = false;
   }
 
   imageCropped(event: ImageCroppedEvent) {
@@ -386,6 +439,14 @@ export class RecipeComponent implements OnInit {
   }
   loadImageFailed() {
     // show message
+  }
+
+  setImageCaption(caption: string) {
+    if (!this.recipe.image) {
+      this.recipe.image = { id: '', url: '', caption: '' };
+    }
+
+    this.recipe.image.caption = caption;
   }
 
   toggleIngredients() {

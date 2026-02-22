@@ -75,7 +75,7 @@ export class PrettyComponent implements OnInit {
   }
 
   openRecipe(recipe: Recipe) {
-    this.router.navigate([`recipe/${recipe.title.toLocaleLowerCase()}/${recipe.creator.toLocaleLowerCase()}`]);
+    this.router.navigate([`recipe/${recipe.id}/${this.utilityService.toSlug(recipe.title)}`]);
   }
 
   displayDateOnly(created: string) {

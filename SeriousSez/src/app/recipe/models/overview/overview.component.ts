@@ -1,21 +1,23 @@
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { DatePipe } from '@angular/common'
 import { Recipe } from '../../models/recipe.interface';
 import { RecipeService } from '../../services/recipe.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { UserService } from 'src/app/shared/services/user.service';
 import { FavoriteService } from 'src/app/shared/services/favorite.service';
 import { Favorites } from 'src/app/shared/models/favorites.interface';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { Ingredient } from '../../models/ingredient.interface';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { UserSettings } from 'src/app/account/models/user-settings.interface';
+import { PrettyComponent } from './pretty/pretty.component';
 
 @Component({
   selector: 'app-overview',
   templateUrl: './overview.component.html',
   styleUrls: ['./overview.component.css'],
-  standalone: false
+  standalone: true,
+  imports: [CommonModule, RouterModule, PrettyComponent]
 })
 export class OverviewComponent implements OnInit {
   public recipeList: Recipe[] = [];
@@ -81,10 +83,17 @@ export class OverviewComponent implements OnInit {
   }
 
   addSelectedRecipesToGroceryList() {
-    this.selectedRecipes.forEach(recipe => {
-      this.groceryService.toggleRecipeToList(recipe);
+    if (this.selectedRecipes.length === 0) return;
+
+    const selectedRecipeRequests = this.selectedRecipes.map(recipe => this.recipeService.getRecipe(recipe.title, recipe.creator));
+
+    forkJoin(selectedRecipeRequests).subscribe((fullRecipes: Recipe[]) => {
+      fullRecipes.forEach(recipe => this.groceryService.toggleRecipeToList(recipe));
       this.recipeList = this.groceryService.getRecipeList();
-    });
+    },
+      (error: any) => {
+        //this.notificationService.printErrorMessage(error);
+      });
   }
 
   toggleRecipeSelected(recipe: Recipe) {
@@ -108,7 +117,7 @@ export class OverviewComponent implements OnInit {
   }
 
   openRecipe(recipe: Recipe) {
-    this.router.navigate([`recipe/${recipe.Title.toLocaleLowerCase()}/${recipe.Creator.toLocaleLowerCase()}`]);
+    this.router.navigate([`recipe/${recipe.title.toLocaleLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}/${encodeURIComponent(recipe.creator)}`]);
   }
 
   displayDateOnly(created: string) {
@@ -121,19 +130,19 @@ export class OverviewComponent implements OnInit {
 
     switch (sortSetting) {
       case 'title':
-        this.shownRecipes.sort((a, b) => this.ascending == true ? a.Title.localeCompare(b.Title) : -a.Title.localeCompare(b.Title));
+        this.shownRecipes.sort((a, b) => this.ascending == true ? a.title.localeCompare(b.title) : -a.title.localeCompare(b.title));
         this.ascending = !this.ascending;
         return;
       case 'instructions':
-        this.shownRecipes.sort((a, b) => this.ascending == true ? a.Instructions.localeCompare(b.Instructions) : -a.Instructions.localeCompare(b.Instructions));
+        this.shownRecipes.sort((a, b) => this.ascending == true ? a.instructions.localeCompare(b.instructions) : -a.instructions.localeCompare(b.instructions));
         this.ascending = !this.ascending;
         return;
       case 'creator':
-        this.shownRecipes.sort((a, b) => this.ascending == true ? a.Creator.localeCompare(b.Creator) : -a.Instructions.localeCompare(b.Creator));
+        this.shownRecipes.sort((a, b) => this.ascending == true ? a.creator.localeCompare(b.creator) : -a.creator.localeCompare(b.creator));
         this.ascending = !this.ascending;
         return;
       case 'created':
-        this.shownRecipes.sort((a, b) => this.ascending == true ? a.Created.localeCompare(b.Created) : -a.Created.localeCompare(b.Created));
+        this.shownRecipes.sort((a, b) => this.ascending == true ? a.created.localeCompare(b.created) : -a.created.localeCompare(b.created));
         this.ascending = !this.ascending;
         return;
     }

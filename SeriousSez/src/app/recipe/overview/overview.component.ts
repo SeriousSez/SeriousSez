@@ -6,16 +6,17 @@ import { Router } from '@angular/router';
 import { UserService } from 'src/app/shared/services/user.service';
 import { FavoriteService } from 'src/app/shared/services/favorite.service';
 import { Favorites } from 'src/app/shared/models/favorites.interface';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { Ingredient } from '../models/ingredient.interface';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
 import { UserSettings } from 'src/app/account/models/user-settings.interface';
+import { UtilityService } from 'src/app/shared/utils/utility.service';
 
 @Component({
-    selector: 'app-overview',
-    templateUrl: './overview.component.html',
-    styleUrls: ['./overview.component.css'],
-    standalone: false
+  selector: 'app-overview',
+  templateUrl: './overview.component.html',
+  styleUrls: ['./overview.component.css'],
+  standalone: false
 })
 export class OverviewComponent implements OnInit {
   public recipeList: Recipe[] = [];
@@ -36,18 +37,18 @@ export class OverviewComponent implements OnInit {
   subscription?: Subscription;
   settingsSubscription?: Subscription;
 
-  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router) { }
+  constructor(private recipeService: RecipeService, private userService: UserService, private favoriteService: FavoriteService, private groceryService: GroceryService, private datepipe: DatePipe, private router: Router, private utilityService: UtilityService) { }
 
   ngOnInit(): void {
     this.getRecipes();
     this.getGroceryLists();
     this.subscription = this.userService.authStatus$.subscribe(status => this.isAuthenticated = status);
     this.settingsSubscription = this.userService.settings$.subscribe(settings => this.settings = settings);
-    
-    if(this.isAuthenticated) this.getFavorites();
+
+    if (this.isAuthenticated) this.getFavorites();
   }
 
-  getGroceryLists(){
+  getGroceryLists() {
     this.recipeList = this.groceryService.getRecipeList();
     this.groceryList = this.groceryService.getIngredientList();
   }
@@ -57,70 +58,77 @@ export class OverviewComponent implements OnInit {
     this.subscription?.unsubscribe();
   }
 
-  getRecipes(){
+  getRecipes() {
     this.recipeService.getRecipes().subscribe((recipes: Recipe[]) => {
       this.recipes = recipes;
       this.shownRecipes = recipes;
       this.loading = false;
       this.sort(this.sortSetting);
     },
-    error => {
-      //this.notificationService.printErrorMessage(error);
-    });
+      error => {
+        //this.notificationService.printErrorMessage(error);
+      });
   }
 
-  getFavorites(){
+  getFavorites() {
     var username = this.userService.getUserName();
-    if(username.length == 0 || username == '' || username == null) return;
-    
+    if (username.length == 0 || username == '' || username == null) return;
+
     this.favoriteService.get(username).subscribe((favorites: Favorites) => {
       this.favoredRecipes = favorites.recipes;
     },
-    error => {
-      //this.notificationService.printErrorMessage(error);
-    });
+      error => {
+        //this.notificationService.printErrorMessage(error);
+      });
   }
 
-  addSelectedRecipesToGroceryList(){
-    this.selectedRecipes.forEach(recipe => {
-      this.groceryService.toggleRecipeToList(recipe);
+  addSelectedRecipesToGroceryList() {
+    if (this.selectedRecipes.length === 0) return;
+
+    const selectedRecipeRequests = this.selectedRecipes.map(recipe => this.recipeService.getRecipe(recipe.title, recipe.creator));
+
+    forkJoin(selectedRecipeRequests).subscribe((fullRecipes: Recipe[]) => {
+      fullRecipes.forEach(recipe => this.groceryService.toggleRecipeToList(recipe));
       this.recipeList = this.groceryService.getRecipeList();
-    });
+    },
+      error => {
+        //this.notificationService.printErrorMessage(error);
+      });
   }
 
-  toggleRecipeSelected(recipe: Recipe){
+  toggleRecipeSelected(recipe: Recipe) {
     var index = this.selectedRecipes.indexOf(recipe, 0);
     if (index > -1) {
       this.selectedRecipes.splice(index, 1);
-    }else{
+    } else {
       this.selectedRecipes.push(recipe);
     }
   }
 
-  toggleDisplay(){
+  toggleDisplay() {
     this.showFavorites = !this.showFavorites;
-    if(this.showFavorites){
-      if(this.favoredRecipes == null) this.favoredRecipes = [];
+    if (this.showFavorites) {
+      if (this.favoredRecipes == null) this.favoredRecipes = [];
 
       this.shownRecipes = this.favoredRecipes;
-    }else{
+    } else {
       this.shownRecipes = this.recipes;
     }
   }
 
-  openRecipe(recipe: Recipe){
-    this.router.navigate([`recipe/${recipe.title.toLocaleLowerCase()}/${recipe.creator.toLocaleLowerCase()}`]);
+  openRecipe(recipe: Recipe) {
+    this.router.navigate([`recipe/${recipe.id}/${this.utilityService.toSlug(recipe.title)}`]);
   }
 
-  displayDateOnly(created: string){
+  displayDateOnly(created: string) {
     return this.datepipe.transform(created, 'dd-MM-yyyy');
   }
 
-  sort(sortSetting: string){
-    if(this.sortSetting != sortSetting) this.ascending = true;
+  sort(sortSetting: string) {
+    if (this.sortSetting != sortSetting) this.ascending = true;
     this.sortSetting = sortSetting;
 
-    switch(sortSetting){
+    switch (sortSetting) {
       case 'title':
         this.shownRecipes.sort((a, b) => this.ascending == true ? a.title.localeCompare(b.title) : -a.title.localeCompare(b.title));
         this.ascending = !this.ascending;
