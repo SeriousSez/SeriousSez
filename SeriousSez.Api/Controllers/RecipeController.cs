@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SeriousSez.ApplicationService.Services;
 using SeriousSez.Domain.Models;
 using SeriousSez.Domain.Responses;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SeriousSez.Api.Controllers
@@ -16,15 +19,21 @@ namespace SeriousSez.Api.Controllers
     public class RecipeController : Controller
     {
         private const string RecipeCacheVersionKey = "recipes:cache:version";
+        private static readonly ConcurrentDictionary<string, byte> RefreshInProgress = new ConcurrentDictionary<string, byte>();
+        private static readonly TimeSpan CacheTtl = TimeSpan.FromSeconds(30);
+        private static readonly TimeSpan RefreshAfter = TimeSpan.FromSeconds(10);
+
         private readonly ILogger<RecipeController> _logger;
         private readonly IRecipeService _recipeService;
         private readonly IMemoryCache _memoryCache;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache)
+        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache, IServiceScopeFactory scopeFactory)
         {
             _logger = logger;
             _recipeService = recipeService;
             _memoryCache = memoryCache;
+            _scopeFactory = scopeFactory;
         }
 
         [HttpPost("create")]
@@ -155,21 +164,26 @@ namespace SeriousSez.Api.Controllers
         {
             var cacheVersion = GetRecipeCacheVersion();
             var cacheKey = $"recipes:getallbycreator:{creator?.ToLowerInvariant()}:v{cacheVersion}";
-            if (_memoryCache.TryGetValue(cacheKey, out IEnumerable<RecipeResponse> cachedRecipes))
+            if (_memoryCache.TryGetValue(cacheKey, out RecipeCacheEntry cachedRecipes))
             {
-                return new OkObjectResult(cachedRecipes);
+                if (DateTimeOffset.UtcNow - cachedRecipes.RefreshedAt > RefreshAfter)
+                {
+                    TriggerBackgroundRefresh(cacheKey, async service => (await service.GetAll(creator)).ToList());
+                }
+
+                return new OkObjectResult(cachedRecipes.Data);
             }
 
-            var recipes = await _recipeService.GetAll(creator);
+            var recipes = (await _recipeService.GetAll(creator)).ToList();
             if (recipes == null)
             {
                 _logger.LogError("Failed to fetch recipes!");
                 return new NotFoundObjectResult("Failed to fetch recipes!");
             }
 
-            _memoryCache.Set(cacheKey, recipes, new MemoryCacheEntryOptions
+            _memoryCache.Set(cacheKey, new RecipeCacheEntry(recipes, DateTimeOffset.UtcNow), new MemoryCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
+                AbsoluteExpirationRelativeToNow = CacheTtl
             });
 
             _logger.LogTrace("Recipes fetched! Recipes: {@Recipes}", recipes);
@@ -181,21 +195,26 @@ namespace SeriousSez.Api.Controllers
         {
             var cacheVersion = GetRecipeCacheVersion();
             var cacheKey = $"recipes:getall:v{cacheVersion}";
-            if (_memoryCache.TryGetValue(cacheKey, out IEnumerable<RecipeResponse> cachedRecipes))
+            if (_memoryCache.TryGetValue(cacheKey, out RecipeCacheEntry cachedRecipes))
             {
-                return new OkObjectResult(cachedRecipes);
+                if (DateTimeOffset.UtcNow - cachedRecipes.RefreshedAt > RefreshAfter)
+                {
+                    TriggerBackgroundRefresh(cacheKey, async service => (await service.GetAll()).ToList());
+                }
+
+                return new OkObjectResult(cachedRecipes.Data);
             }
 
-            var recipes = await _recipeService.GetAll();
+            var recipes = (await _recipeService.GetAll()).ToList();
             if (recipes == null)
             {
                 _logger.LogError("Failed to fetch recipes!");
                 return new NotFoundObjectResult("Failed to fetch recipes!");
             }
 
-            _memoryCache.Set(cacheKey, recipes, new MemoryCacheEntryOptions
+            _memoryCache.Set(cacheKey, new RecipeCacheEntry(recipes, DateTimeOffset.UtcNow), new MemoryCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
+                AbsoluteExpirationRelativeToNow = CacheTtl
             });
 
             _logger.LogTrace("Recipes fetched! Recipes: {@Recipes}", recipes);
@@ -231,6 +250,47 @@ namespace SeriousSez.Api.Controllers
         {
             var nextVersion = GetRecipeCacheVersion() + 1;
             _memoryCache.Set(RecipeCacheVersionKey, nextVersion);
+        }
+
+        private void TriggerBackgroundRefresh(string cacheKey, Func<IRecipeService, Task<List<RecipeResponse>>> refreshFactory)
+        {
+            if (!RefreshInProgress.TryAdd(cacheKey, 0))
+                return;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var recipeService = scope.ServiceProvider.GetRequiredService<IRecipeService>();
+                    var refreshedData = await refreshFactory(recipeService);
+
+                    _memoryCache.Set(cacheKey, new RecipeCacheEntry(refreshedData, DateTimeOffset.UtcNow), new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = CacheTtl
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Background recipe cache refresh failed for key {CacheKey}", cacheKey);
+                }
+                finally
+                {
+                    RefreshInProgress.TryRemove(cacheKey, out _);
+                }
+            });
+        }
+
+        private sealed class RecipeCacheEntry
+        {
+            public RecipeCacheEntry(List<RecipeResponse> data, DateTimeOffset refreshedAt)
+            {
+                Data = data;
+                RefreshedAt = refreshedAt;
+            }
+
+            public List<RecipeResponse> Data { get; }
+            public DateTimeOffset RefreshedAt { get; }
         }
     }
 }
