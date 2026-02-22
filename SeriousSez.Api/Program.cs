@@ -26,6 +26,12 @@ namespace SeriousSez
                 var services = scope.ServiceProvider;
                 try
                 {
+                    var env = services.GetRequiredService<IHostEnvironment>();
+                    if (!env.IsDevelopment())
+                    {
+                        return;
+                    }
+
                     var context = services.GetRequiredService<SeriousContext>();
                     context.Database.EnsureCreated();
                     // DbInitializer.Initialize(context);

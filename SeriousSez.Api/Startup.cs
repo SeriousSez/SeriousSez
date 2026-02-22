@@ -241,14 +241,17 @@ namespace SeriousSez
                 endpoints.MapSwagger();
             });
 
-            // Wrap SeedDatabase in try-catch to prevent crashes
-            try
+            // Run startup data seeding only in development
+            if (env.IsDevelopment())
             {
-                app.SeedDatabase();
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error seeding database");
+                try
+                {
+                    app.SeedDatabase();
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error seeding database");
+                }
             }
         }
 

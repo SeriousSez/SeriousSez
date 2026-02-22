@@ -4,6 +4,7 @@ namespace SeriousSez.Domain.Entities
 {
     public class UserSettings : BaseEntity
     {
+        [NotMapped]
         public string PreferredLanguage { get; set; } = "English";
         public string Theme { get; set; }
         public string RecipesTheme { get; set; }
