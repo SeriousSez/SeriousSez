@@ -121,8 +121,6 @@ jobs:
         run: |
           dotnet publish ${{ env.PROJECT_PATH }} `
             --configuration Release `
-            --runtime win-x64 `
-            --self-contained true `
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
 
