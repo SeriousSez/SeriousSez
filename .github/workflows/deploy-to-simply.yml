@@ -121,7 +121,7 @@ jobs:
         run: |
           dotnet publish ${{ env.PROJECT_PATH }} `
             --configuration Release `
-            --runtime win-x86 `
+            --runtime win-x64 `
             --self-contained true `
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
@@ -190,12 +190,12 @@ jobs:
           name: api-publish
           path: ${{ env.PUBLISH_PATH }}/
 
-      - name: Harden web.config for production startup
+      - name: Prepare web.config and logs for startup diagnostics
         shell: pwsh
         run: |
           $webConfig = Join-Path "${{ env.PUBLISH_PATH }}" "web.config"
           if (Test-Path $webConfig) {
-            (Get-Content $webConfig -Raw) -replace 'stdoutLogEnabled="true"', 'stdoutLogEnabled="false"' | Set-Content $webConfig -Encoding UTF8
+            (Get-Content $webConfig -Raw) -replace 'stdoutLogEnabled="false"', 'stdoutLogEnabled="true"' | Set-Content $webConfig -Encoding UTF8
           }
 
           $logsDir = Join-Path "${{ env.PUBLISH_PATH }}" "logs"
