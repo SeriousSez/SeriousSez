@@ -116,7 +116,10 @@ export class RecipeComponent implements OnInit {
   toggleFavorite() {
     var model: FavoriteRecipe = {
       username: this.userService.getUserName(),
-      recipe: this.recipe
+      recipe: {
+        title: this.recipe.title,
+        creator: this.recipe.creator
+      } as Recipe
     };
 
     this.favoriteService.favoriteRecipe(model).subscribe(result => {

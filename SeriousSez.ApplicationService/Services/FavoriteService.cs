@@ -60,6 +60,7 @@ namespace SeriousSez.ApplicationService.Services
             var favorites = new Favorites
             {
                 User = user,
+                RecipeId = recipe?.Id,
                 Recipes = recipe == null ? new List<Recipe>() : new List<Recipe> { recipe },
                 Ingredients = ingredient == null ? new List<Ingredient>() : new List<Ingredient> { ingredient }
             };
