@@ -16,6 +16,7 @@ namespace SeriousSez.Infrastructure.Repositories
         Task<Recipe> GetByTitleAndCreator(string title, string creator);
         Task<Recipe> GetByTitleAndCreatorFull(string title, string creator);
         Task<Recipe> GetByCreator(User user);
+        Task<IEnumerable<Recipe>> GetAllByCreatorId(string creatorId);
         Task<IEnumerable<Recipe>> GetAll();
         Task<IEnumerable<Recipe>> GetAllByCreatorFull(string creator);
         Task<IEnumerable<Recipe>> GetAllFull();

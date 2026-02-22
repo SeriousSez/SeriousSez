@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SeriousSez.ApplicationService.Services;
@@ -14,13 +15,16 @@ namespace SeriousSez.Api.Controllers
     [Route("[controller]")]
     public class RecipeController : Controller
     {
+        private const string RecipeCacheVersionKey = "recipes:cache:version";
         private readonly ILogger<RecipeController> _logger;
         private readonly IRecipeService _recipeService;
+        private readonly IMemoryCache _memoryCache;
 
-        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService)
+        public RecipeController(ILogger<RecipeController> logger, IRecipeService recipeService, IMemoryCache memoryCache)
         {
             _logger = logger;
             _recipeService = recipeService;
+            _memoryCache = memoryCache;
         }
 
         [HttpPost("create")]
@@ -36,6 +40,8 @@ namespace SeriousSez.Api.Controllers
             if (recipe == null)
                 return BadRequest("Failed to create recipe!");
 
+            BumpRecipeCacheVersion();
+
             return new OkObjectResult(recipe);
         }
 
@@ -49,6 +55,8 @@ namespace SeriousSez.Api.Controllers
             }
 
             var result = await _recipeService.Update(recipe);
+
+            BumpRecipeCacheVersion();
 
             _logger.LogTrace("Recipe has been updated! Recipe: {@Recipe}", result);
 
@@ -72,6 +80,8 @@ namespace SeriousSez.Api.Controllers
                     return NotFound("Ingredient could not be found!");
             }
 
+            BumpRecipeCacheVersion();
+
             _logger.LogTrace("Ingredients have been deleted! Ingredients: {@Ingredients}", ingredients);
 
             return new OkResult();
@@ -84,6 +94,8 @@ namespace SeriousSez.Api.Controllers
             var recipe = await _recipeService.AddIngredients(ingredients, title, creator);
             if (recipe == null)
                 return BadRequest("Failed to add new ingredients to recipe!");
+
+            BumpRecipeCacheVersion();
 
             return new OkObjectResult(recipe);
         }
@@ -100,6 +112,8 @@ namespace SeriousSez.Api.Controllers
             {
                 var result = await _recipeService.Delete(id);
             }
+
+            BumpRecipeCacheVersion();
 
             _logger.LogTrace("Recipes have been deleted! RecipeIds: {@RecipeIds}", recipeIds);
 
@@ -139,12 +153,24 @@ namespace SeriousSez.Api.Controllers
         [HttpGet("getallbycreator")]
         public async Task<IActionResult> GetAllByCreator(string creator)
         {
+            var cacheVersion = GetRecipeCacheVersion();
+            var cacheKey = $"recipes:getallbycreator:{creator?.ToLowerInvariant()}:v{cacheVersion}";
+            if (_memoryCache.TryGetValue(cacheKey, out IEnumerable<RecipeResponse> cachedRecipes))
+            {
+                return new OkObjectResult(cachedRecipes);
+            }
+
             var recipes = await _recipeService.GetAll(creator);
             if (recipes == null)
             {
                 _logger.LogError("Failed to fetch recipes!");
                 return new NotFoundObjectResult("Failed to fetch recipes!");
             }
+
+            _memoryCache.Set(cacheKey, recipes, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
+            });
 
             _logger.LogTrace("Recipes fetched! Recipes: {@Recipes}", recipes);
             return new OkObjectResult(recipes);
@@ -153,12 +179,24 @@ namespace SeriousSez.Api.Controllers
         [HttpGet("getall")]
         public async Task<IActionResult> GetAll()
         {
+            var cacheVersion = GetRecipeCacheVersion();
+            var cacheKey = $"recipes:getall:v{cacheVersion}";
+            if (_memoryCache.TryGetValue(cacheKey, out IEnumerable<RecipeResponse> cachedRecipes))
+            {
+                return new OkObjectResult(cachedRecipes);
+            }
+
             var recipes = await _recipeService.GetAll();
             if (recipes == null)
             {
                 _logger.LogError("Failed to fetch recipes!");
                 return new NotFoundObjectResult("Failed to fetch recipes!");
             }
+
+            _memoryCache.Set(cacheKey, recipes, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
+            });
 
             _logger.LogTrace("Recipes fetched! Recipes: {@Recipes}", recipes);
             return new OkObjectResult(recipes);
@@ -176,6 +214,23 @@ namespace SeriousSez.Api.Controllers
 
             _logger.LogTrace("Recipes fetched! Recipes: {@Recipes}", users);
             return new OkObjectResult(users);
+        }
+
+        private int GetRecipeCacheVersion()
+        {
+            if (_memoryCache.TryGetValue(RecipeCacheVersionKey, out int version))
+            {
+                return version;
+            }
+
+            _memoryCache.Set(RecipeCacheVersionKey, 0);
+            return 0;
+        }
+
+        private void BumpRecipeCacheVersion()
+        {
+            var nextVersion = GetRecipeCacheVersion() + 1;
+            _memoryCache.Set(RecipeCacheVersionKey, nextVersion);
         }
     }
 }

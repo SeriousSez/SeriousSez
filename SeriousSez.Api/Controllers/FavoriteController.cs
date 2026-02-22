@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SeriousSez.ApplicationService.Services;
 using SeriousSez.Domain.Models;
+using SeriousSez.Domain.Responses;
+using System;
 using System.Threading.Tasks;
 
 namespace SeriousSez.Api.Controllers
@@ -12,19 +15,34 @@ namespace SeriousSez.Api.Controllers
     [Authorize(AuthenticationSchemes = "Bearer")]
     public class FavoriteController : Controller
     {
+        private const string FavoriteCacheVersionKey = "favorites:cache:version";
         private readonly ILogger<FavoriteController> _logger;
         private readonly IFavoriteService _favoriteService;
+        private readonly IMemoryCache _memoryCache;
 
-        public FavoriteController(ILogger<FavoriteController> logger, IFavoriteService favoriteService)
+        public FavoriteController(ILogger<FavoriteController> logger, IFavoriteService favoriteService, IMemoryCache memoryCache)
         {
             _logger = logger;
             _favoriteService = favoriteService;
+            _memoryCache = memoryCache;
         }
 
         [HttpGet("get")]
         public async Task<IActionResult> Get(string username)
         {
+            var cacheVersion = GetFavoriteCacheVersion();
+            var cacheKey = $"favorites:get:{username?.ToLowerInvariant()}:v{cacheVersion}";
+            if (_memoryCache.TryGetValue(cacheKey, out FavoritesResponse cachedFavorites))
+            {
+                return new OkObjectResult(cachedFavorites);
+            }
+
             var favorites = await _favoriteService.Get(username);
+
+            _memoryCache.Set(cacheKey, favorites, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30)
+            });
 
             _logger.LogTrace("Favorites fetched! Favorites: {@Favorites}", favorites);
             return new OkObjectResult(favorites);
@@ -51,6 +69,8 @@ namespace SeriousSez.Api.Controllers
             if (ingredient == null)
                 return BadRequest("Failed to add Recipe to Favorites!");
 
+            BumpFavoriteCacheVersion();
+
             return new OkResult();
         }
 
@@ -66,7 +86,26 @@ namespace SeriousSez.Api.Controllers
             if (ingredient == null)
                 return BadRequest("Failed to add Ingredient to Favorites!");
 
+            BumpFavoriteCacheVersion();
+
             return new OkResult();
+        }
+
+        private int GetFavoriteCacheVersion()
+        {
+            if (_memoryCache.TryGetValue(FavoriteCacheVersionKey, out int version))
+            {
+                return version;
+            }
+
+            _memoryCache.Set(FavoriteCacheVersionKey, 0);
+            return 0;
+        }
+
+        private void BumpFavoriteCacheVersion()
+        {
+            var nextVersion = GetFavoriteCacheVersion() + 1;
+            _memoryCache.Set(FavoriteCacheVersionKey, nextVersion);
         }
     }
 }

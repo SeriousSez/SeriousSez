@@ -92,6 +92,17 @@ namespace SeriousSez.Infrastructure.Repositories
             return recipes;
         }
 
+        public async Task<IEnumerable<Recipe>> GetAllByCreatorId(string creatorId)
+        {
+            var recipes = await _context.Recipes
+                .AsNoTracking()
+                .Where(r => EF.Property<string>(r, "CreatorId") == creatorId)
+                .Include(r => r.Image)
+                .ToListAsync();
+
+            return recipes;
+        }
+
         public async Task<IEnumerable<Recipe>> GetAllByCreatorFull(string creator)
         {
             var recipes = await _context.Recipes

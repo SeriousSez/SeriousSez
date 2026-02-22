@@ -212,6 +212,7 @@ namespace SeriousSez.ApplicationService.Services
                 Theme = "Light",
                 RecipesTheme = "Pretty",
                 MyRecipesTheme = "Pretty",
+                UserId = user.Id,
                 Identity = user
             };
 
@@ -228,19 +229,23 @@ namespace SeriousSez.ApplicationService.Services
             settings.PreferredLanguage = model.PreferredLanguage;
             settings.Theme = model.Theme;
             settings.RecipesTheme = model.RecipesTheme;
-            settings.MyRecipesTheme = model.MyRecipesTheme;
+            settings.MyRecipesTheme = string.IsNullOrWhiteSpace(model.MyRecipesTheme) ? model.RecipesTheme : model.MyRecipesTheme;
 
             await _userRepository.UpdateSettings(settings);
             _logger.LogTrace("User created! User: {@User}", user);
 
-            return _mapper.Map<UserSettingsResponse>(settings);
+            var response = _mapper.Map<UserSettingsResponse>(settings);
+            response.MyRecipesTheme = settings.MyRecipesTheme ?? settings.RecipesTheme;
+            return response;
         }
 
         public async Task<UserSettingsResponse> GetSettings(Guid id)
         {
             var user = await _userRepository.GetByUserId(id);
             var settings = await _userRepository.GetSettings(user);
+            settings.MyRecipesTheme = settings.MyRecipesTheme ?? settings.RecipesTheme;
             var settingsResponse = _mapper.Map<UserSettingsResponse>(settings);
+            settingsResponse.MyRecipesTheme = settings.MyRecipesTheme;
 
             return settingsResponse;
         }

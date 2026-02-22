@@ -178,13 +178,31 @@ namespace SeriousSez.ApplicationService.Services
 
         public async Task<IEnumerable<RecipeResponse>> GetAll(string creator)
         {
-            var recipes = await _recipeRepository.GetAllByCreatorFull(creator);
+            var user = await _userRepository.GetByUserName(creator);
+            if (user == null)
+                user = await _userRepository.GetByEmail(creator);
+
+            if (user == null)
+                return new List<RecipeResponse>();
+
+            var recipes = await _recipeRepository.GetAllByCreatorId(user.Id);
 
             var recipeList = new List<RecipeResponse>();
             foreach (var recipe in recipes)
             {
-                var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
-                recipeResponse.Ingredients = new List<IngredientResponse>();
+                var recipeResponse = new RecipeResponse
+                {
+                    Id = recipe.Id,
+                    Title = recipe.Title,
+                    Creator = user.UserName,
+                    Description = recipe.Description,
+                    Instructions = recipe.Instructions,
+                    Language = recipe.Language,
+                    Portions = recipe.Portions,
+                    Created = recipe.Created,
+                    Image = _mapper.Map<ImageResponse>(recipe.Image),
+                    Ingredients = new List<IngredientResponse>()
+                };
 
                 recipeList.Add(recipeResponse);
             }

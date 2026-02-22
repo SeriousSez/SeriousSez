@@ -89,7 +89,12 @@ namespace SeriousSez.Infrastructure.Repositories
 
         public async Task<UserSettings> GetSettings(User user)
         {
-            var settings = await _context.UserSettings.Include(s => s.Identity).FirstOrDefaultAsync(u => u.Identity == user);
+            if (user == null)
+                return null;
+
+            var settings = await _context.UserSettings
+                .Include(s => s.Identity)
+                .FirstOrDefaultAsync(s => s.UserId == user.Id);
             return settings;
         }
     }
