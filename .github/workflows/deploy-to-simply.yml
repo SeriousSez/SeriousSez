@@ -10,6 +10,7 @@ env:
   DOTNET_VERSION: "8.0.x"
   PROJECT_PATH: "SeriousSez.Api/SeriousSez.Api.csproj"
   PUBLISH_PATH: "./publish"
+  RUNTIME_IDENTIFIER: "win-x86"
   NODE_VERSION: "20.x"
   ANGULAR_WORKING_DIR: "./SeriousSez"
   ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez/browser"
@@ -121,7 +122,7 @@ jobs:
         run: |
           dotnet publish ${{ env.PROJECT_PATH }} `
             --configuration Release `
-            --runtime win-x64 `
+            --runtime ${{ env.RUNTIME_IDENTIFIER }} `
             --self-contained true `
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
@@ -190,6 +191,33 @@ jobs:
           name: api-publish
           path: ${{ env.PUBLISH_PATH }}/
 
+      - name: Verify API artifact for Simply requirements
+        shell: pwsh
+        run: |
+          $publishDir = "${{ env.PUBLISH_PATH }}"
+          $exePath = Join-Path $publishDir "SeriousSez.Api.exe"
+          $webConfigPath = Join-Path $publishDir "web.config"
+
+          if (-not (Test-Path $exePath)) {
+            throw "Missing SeriousSez.Api.exe in publish output."
+          }
+
+          if (-not (Test-Path $webConfigPath)) {
+            throw "Missing web.config in publish output."
+          }
+
+          $webConfig = Get-Content $webConfigPath -Raw
+
+          if ($webConfig -notmatch 'processPath="\.\\SeriousSez\.Api\.exe"') {
+            throw "web.config processPath is not set to .\\SeriousSez.Api.exe"
+          }
+
+          if ($webConfig -notmatch 'hostingModel="outofprocess"|hostingModel="OutOfProcess"') {
+            throw "web.config hostingModel is not OutOfProcess"
+          }
+
+          Write-Host "✅ Artifact check passed (SCD + win-x86 + OutOfProcess compatible layout)."
+
       - name: Prepare web.config and logs for startup diagnostics
         shell: pwsh
         run: |
@@ -208,54 +236,7 @@ jobs:
             Set-Content -Path $placeholder -Value "keep" -Encoding UTF8
           }
 
-      - name: Create app_offline.htm
-        shell: pwsh
-        run: |
-          $content = @"
-          <!DOCTYPE html>
-          <html>
-          <head>
-              <title>Application Offline</title>
-          </head>
-          <body>
-              <h1>Application Offline</h1>
-              <p>The application is currently offline for maintenance.</p>
-          </body>
-          </html>
-          "@
-          Set-Content -Path "${{ env.PUBLISH_PATH }}/app_offline.htm" -Value $content
-
-      - name: Deploy app_offline.htm to take app offline
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ${{ env.PUBLISH_PATH }}/
-          server-dir: /recipes.api/
-          dangerous-clean-slate: false
-
-      - name: Wait for app to go offline
-        shell: pwsh
-        run: Start-Sleep -Seconds 3
-
       - name: Deploy API using FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ${{ env.PUBLISH_PATH }}/
-          server-dir: /recipes.api/
-          dangerous-clean-slate: false
-
-      - name: Remove app_offline.htm from local publish folder
-        shell: pwsh
-        run: |
-          Remove-Item "${{ env.PUBLISH_PATH }}/app_offline.htm" -Force -ErrorAction SilentlyContinue
-          Write-Host "Removed app_offline.htm from local folder"
-
-      - name: Deploy to remove app_offline.htm from server
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
