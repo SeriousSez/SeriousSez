@@ -252,6 +252,44 @@ jobs:
           server-dir: /recipes.api/
           dangerous-clean-slate: false
 
+      - name: Prepare critical runtime assemblies bundle
+        shell: pwsh
+        run: |
+          $publishDir = "${{ env.PUBLISH_PATH }}"
+          $criticalDir = Join-Path $env:RUNNER_TEMP "critical-runtime"
+          if (Test-Path $criticalDir) {
+            Remove-Item $criticalDir -Recurse -Force
+          }
+          New-Item -ItemType Directory -Path $criticalDir | Out-Null
+
+          $criticalFiles = @(
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll",
+            "Microsoft.EntityFrameworkCore.dll",
+            "Microsoft.EntityFrameworkCore.Relational.dll",
+            "Microsoft.Extensions.Identity.Stores.dll",
+            "SeriousSez.Infrastructure.dll",
+            "SeriousSez.Api.deps.json"
+          )
+
+          foreach ($file in $criticalFiles) {
+            $source = Join-Path $publishDir $file
+            if (-not (Test-Path $source)) {
+              throw "Critical runtime file missing in publish output: $file"
+            }
+
+            Copy-Item -Path $source -Destination (Join-Path $criticalDir $file) -Force
+          }
+
+      - name: Deploy critical runtime assemblies
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ${{ runner.temp }}/critical-runtime/
+          server-dir: /recipes.api/
+          dangerous-clean-slate: false
+
       - name: Wait for app to restart
         shell: pwsh
         run: Start-Sleep -Seconds 15
