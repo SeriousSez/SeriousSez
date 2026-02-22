@@ -10,7 +10,6 @@ env:
   DOTNET_VERSION: "8.0.x"
   PROJECT_PATH: "SeriousSez.Api/SeriousSez.Api.csproj"
   PUBLISH_PATH: "./publish"
-  RUNTIME_IDENTIFIER: "win-x64"
   NODE_VERSION: "20.x"
   ANGULAR_WORKING_DIR: "./SeriousSez"
   ANGULAR_DIST_PATH: "./SeriousSez/dist/SeriousSez/browser"
@@ -34,6 +33,9 @@ jobs:
           filters: |
             api:
               - 'SeriousSez.Api/**'
+              - 'SeriousSez.ApplicationService/**'
+              - 'SeriousSez.Domain/**'
+              - 'SeriousSez.Infrastructure/**'
               - '.github/workflows/deploy-to-simply.yml'
             web:
               - 'SeriousSez/**'
@@ -75,7 +77,6 @@ jobs:
           $config = @{
             ConnectionStrings = @{
               MySql = $env:MYSQL_CONNECTION_STRING
-              AzureStorage = $env:AZURE_STORAGE_CONNECTION_STRING
             }
             Logging = @{
               LogLevel = @{
@@ -120,7 +121,7 @@ jobs:
         run: |
           dotnet publish ${{ env.PROJECT_PATH }} `
             --configuration Release `
-            --runtime ${{ env.RUNTIME_IDENTIFIER }} `
+            --runtime win-x86 `
             --self-contained true `
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
@@ -210,6 +211,9 @@ jobs:
       - name: Create app_offline.htm
         shell: pwsh
         run: |
+          $offlineDir = Join-Path $env:RUNNER_TEMP "offline"
+          New-Item -ItemType Directory -Path $offlineDir -Force | Out-Null
+
           $content = @"
           <!DOCTYPE html>
           <html>
@@ -222,7 +226,7 @@ jobs:
           </body>
           </html>
           "@
-          Set-Content -Path "${{ env.PUBLISH_PATH }}/app_offline.htm" -Value $content
+            Set-Content -Path (Join-Path $offlineDir "app_offline.htm") -Value $content
 
       - name: Deploy app_offline.htm to take app offline
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -230,7 +234,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ${{ env.PUBLISH_PATH }}/
+          local-dir: ${{ runner.temp }}/offline/
           server-dir: /recipes.api/
           dangerous-clean-slate: false
 
@@ -239,22 +243,6 @@ jobs:
         run: Start-Sleep -Seconds 3
 
       - name: Deploy API using FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ${{ env.PUBLISH_PATH }}/
-          server-dir: /recipes.api/
-          dangerous-clean-slate: false
-
-      - name: Remove app_offline.htm from local publish folder
-        shell: pwsh
-        run: |
-          Remove-Item "${{ env.PUBLISH_PATH }}/app_offline.htm" -Force -ErrorAction SilentlyContinue
-          Write-Host "Removed app_offline.htm from local folder"
-
-      - name: Deploy to remove app_offline.htm from server
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
