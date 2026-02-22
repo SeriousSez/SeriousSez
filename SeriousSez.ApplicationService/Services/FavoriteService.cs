@@ -20,11 +20,11 @@ namespace SeriousSez.ApplicationService.Services
         private readonly IMapper _mapper;
 
         public FavoriteService(
-            ILogger<FavoriteService> logger, 
-            IFavoriteRepository favoriteRepository, 
-            IUserRepository userRepository, 
-            IIngredientRepository ingredientRepository, 
-            IRecipeRepository recipeRepository, 
+            ILogger<FavoriteService> logger,
+            IFavoriteRepository favoriteRepository,
+            IUserRepository userRepository,
+            IIngredientRepository ingredientRepository,
+            IRecipeRepository recipeRepository,
             IMapper mapper)
         {
             _logger = logger;
@@ -78,7 +78,7 @@ namespace SeriousSez.ApplicationService.Services
             if (exists)
             {
                 favorites.Recipes.Remove(recipe);
-                _logger.LogTrace("Removed Recipe to Favorites!", favorites);
+                _logger.LogTrace("Removed Recipe to Favorites! Favorites: {@Favorites}", favorites);
             }
             else
             {
@@ -86,7 +86,7 @@ namespace SeriousSez.ApplicationService.Services
                     favorites.Recipes = new List<Recipe>();
 
                 favorites.Recipes.Add(recipe);
-                _logger.LogTrace("Added Recipe from Favorites!", favorites);
+                _logger.LogTrace("Added Recipe from Favorites! Favorites: {@Favorites}", favorites);
             }
 
             await _favoriteRepository.Update(favorites);
@@ -112,7 +112,7 @@ namespace SeriousSez.ApplicationService.Services
             if (exists)
             {
                 favorites.Ingredients.Remove(ingredient);
-                _logger.LogTrace("Removed Ingredient from Favorites!", favorites);
+                _logger.LogTrace("Removed Ingredient from Favorites! Favorites: {@Favorites}", favorites);
             }
             else
             {
@@ -120,12 +120,12 @@ namespace SeriousSez.ApplicationService.Services
                     favorites.Ingredients = new List<Ingredient>();
 
                 favorites.Ingredients.Add(ingredient);
-                _logger.LogTrace("Added Ingredient from Favorites!", favorites);
+                _logger.LogTrace("Added Ingredient from Favorites! Favorites: {@Favorites}", favorites);
             }
 
             await _favoriteRepository.Update(favorites);
 
-            _logger.LogTrace("Added Ingredient to Favorites!", favorites);
+            _logger.LogTrace("Added Ingredient to Favorites! Favorites: {@Favorites}", favorites);
 
             return _mapper.Map<FavoritesResponse>(favorites);
         }

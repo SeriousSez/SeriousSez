@@ -134,7 +134,7 @@ jobs:
       - name: Inject Google Maps API key
         working-directory: ${{ env.ANGULAR_WORKING_DIR }}
         env:
-          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          GOOGLE_MAPS_API_KEY: ${{ secrets['GOOGLE_MAPS_API_KEY'] }}
         shell: pwsh
         run: |
           (Get-Content src/environments/environment.prod.ts) -replace '\$\{GOOGLE_MAPS_API_KEY\}', $env:GOOGLE_MAPS_API_KEY | Set-Content src/environments/environment.prod.ts

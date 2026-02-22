@@ -56,7 +56,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch GroceryList!");
             }
 
-            _logger.LogTrace("GroceryList fetched!", groceryList);
+            _logger.LogTrace("GroceryList fetched! GroceryList: {@GroceryList}", groceryList);
             return new OkObjectResult(groceryList);
         }
     }

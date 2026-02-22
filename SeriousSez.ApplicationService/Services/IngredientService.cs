@@ -29,7 +29,7 @@ namespace SeriousSez.ApplicationService.Services
             var ingredient = _mapper.Map<Ingredient>(model);
             await _ingredientRepository.Create(ingredient);
 
-            _logger.LogTrace("Ingredient created!", ingredient);
+            _logger.LogTrace("Ingredient created! Ingredient: {@Ingredient}", ingredient);
 
             return ingredient;
         }
@@ -39,7 +39,7 @@ namespace SeriousSez.ApplicationService.Services
             var ingredient = await _ingredientRepository.GetByName(model.Name);
             await _ingredientRepository.Create(ingredient);
 
-            _logger.LogTrace("Ingredient created!", ingredient);
+            _logger.LogTrace("Ingredient created! Ingredient: {@Ingredient}", ingredient);
 
             return ingredient;
         }
@@ -65,7 +65,7 @@ namespace SeriousSez.ApplicationService.Services
             ingredient.Description = model.Description;
 
             var image = await _imageRepository.GetByUrl(model.Image.Url);
-            if(image == null)
+            if (image == null)
             {
                 await _imageRepository.Delete(ingredient.Image);
                 var newImage = _mapper.Map<Image>(model);
@@ -74,7 +74,7 @@ namespace SeriousSez.ApplicationService.Services
 
             await _ingredientRepository.Update(ingredient);
 
-            _logger.LogTrace("Ingredient updated!", ingredient);
+            _logger.LogTrace("Ingredient updated! Ingredient: {@Ingredient}", ingredient);
 
             return ingredient;
         }
@@ -85,7 +85,7 @@ namespace SeriousSez.ApplicationService.Services
             await _imageRepository.Delete(ingredient.Image);
             await _ingredientRepository.Delete(ingredient);
 
-            _logger.LogTrace("Ingredient deleted!", ingredient);
+            _logger.LogTrace("Ingredient deleted! Ingredient: {@Ingredient}", ingredient);
 
             return ingredient;
         }

@@ -27,7 +27,7 @@ namespace SeriousSez.ApplicationService.Services
             var ingredient = _mapper.Map<Image>(model);
             await _imageRepository.Create(ingredient);
 
-            _logger.LogTrace("Ingredient created!", ingredient);
+            _logger.LogTrace("Ingredient created! Ingredient: {@Ingredient}", ingredient);
 
             return ingredient;
         }
@@ -37,7 +37,7 @@ namespace SeriousSez.ApplicationService.Services
             var image = await _imageRepository.Get(model.Id);
             await _imageRepository.Delete(image);
 
-            _logger.LogTrace("Ingredient deleted!", image);
+            _logger.LogTrace("Ingredient deleted! Image: {@Image}", image);
 
             return image;
         }

@@ -22,9 +22,9 @@ namespace SeriousSez.ApplicationService.Services
         private readonly IMapper _mapper;
 
         public RecipeService(
-            ILogger<RecipeService> logger, 
-            IRecipeRepository recipeRepository, 
-            IIngredientRepository ingredientRepository, 
+            ILogger<RecipeService> logger,
+            IRecipeRepository recipeRepository,
+            IIngredientRepository ingredientRepository,
             IRecipeIngredientRepository recipeIngredientRepository,
             IImageRepository imageRepository,
             IUserRepository userRepository,
@@ -50,7 +50,7 @@ namespace SeriousSez.ApplicationService.Services
 
             await _recipeRepository.Create(recipe);
 
-            foreach(var ingredient in model.Ingredients)
+            foreach (var ingredient in model.Ingredients)
             {
                 var ingredientEntity = _mapper.Map<Ingredient>(ingredient);
 
@@ -67,7 +67,7 @@ namespace SeriousSez.ApplicationService.Services
                 await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, recipe, ingredientEntity);
             }
 
-            _logger.LogTrace("Recipe created!", recipe);
+            _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipe);
 
             var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
             return recipeResponse;
@@ -95,7 +95,7 @@ namespace SeriousSez.ApplicationService.Services
                 await CreateRecipeIngredient(ingredient.Amount, ingredient.AmountType, recipe, ingredientEntity);
             }
 
-            _logger.LogTrace("Recipe created!", recipe);
+            _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipe);
 
             var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
             return recipeResponse;
@@ -119,7 +119,7 @@ namespace SeriousSez.ApplicationService.Services
         {
             var recipe = await _recipeRepository.GetByTitleAndCreatorFull(model.Title, model.Creator);
 
-            _logger.LogTrace("Recipe created!", recipe);
+            _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipe);
 
             return recipe;
         }
@@ -131,14 +131,14 @@ namespace SeriousSez.ApplicationService.Services
                 return null;
 
             var recipeResponse = _mapper.Map<RecipeResponse>(recipe);
-            
+
             recipeResponse.Ingredients = new List<IngredientResponse>();
             foreach (var recipeIngredient in recipe.RecipeIngredients)
             {
                 recipeResponse.Ingredients.Add(await CreateIngredientResponeModel(recipeIngredient));
             }
 
-            _logger.LogTrace("Recipe created!", recipeResponse);
+            _logger.LogTrace("Recipe created! Recipe: {@Recipe}", recipeResponse);
 
             return recipeResponse;
         }
@@ -207,7 +207,7 @@ namespace SeriousSez.ApplicationService.Services
 
             if (model.Ingredients.Any())
             {
-                foreach(var ingredient in model.Ingredients)
+                foreach (var ingredient in model.Ingredients)
                 {
                     var matchingRecipeIngredient = recipe.RecipeIngredients.FirstOrDefault(r => r.Ingredient.Name == ingredient.Name);
                     if (matchingRecipeIngredient == null)
@@ -234,7 +234,7 @@ namespace SeriousSez.ApplicationService.Services
             //recipe.Language = model.Language;
             await _recipeRepository.Update(recipe);
 
-            _logger.LogTrace("Recipe updated!", recipe);
+            _logger.LogTrace("Recipe updated! Recipe: {@Recipe}", recipe);
 
             var response = _mapper.Map<RecipeResponse>(recipe);
             response.Ingredients = new List<IngredientResponse>();
@@ -255,7 +255,7 @@ namespace SeriousSez.ApplicationService.Services
 
             await _recipeIngredientRepository.Delete(recipeIngredient);
 
-            _logger.LogTrace("RecipeIngredient deleted!", recipeIngredient);
+            _logger.LogTrace("RecipeIngredient deleted! RecipeIngredient: {@RecipeIngredient}", recipeIngredient);
 
             return true;
         }
@@ -276,7 +276,7 @@ namespace SeriousSez.ApplicationService.Services
 
             await _recipeRepository.Delete(recipe);
 
-            _logger.LogTrace("Recipe deleted!", recipe);
+            _logger.LogTrace("Recipe deleted! Recipe: {@Recipe}", recipe);
 
             return recipe;
         }

@@ -44,7 +44,7 @@ namespace SeriousSez.Api.Controllers
                 return BadRequest(ModelState);
             }
 
-            if(string.IsNullOrWhiteSpace(model.Role))
+            if (string.IsNullOrWhiteSpace(model.Role))
                 model.Role = "User";
 
             var identityResult = await _userService.Create(model);
@@ -66,7 +66,7 @@ namespace SeriousSez.Api.Controllers
             if (user == null)
                 return BadRequest("Failed to upgrade user!");
 
-            _logger.LogTrace("User has been updated!", user);
+            _logger.LogTrace("User has been updated! User: {@User}", user);
 
             return new OkResult();
         }
@@ -98,7 +98,7 @@ namespace SeriousSez.Api.Controllers
             if (settings == null)
                 return BadRequest("Failed to upgrade user settings!");
 
-            _logger.LogTrace("User settings have been updated!", settings);
+            _logger.LogTrace("User settings have been updated! Settings: {@Settings}", settings);
 
             return new OkResult();
         }

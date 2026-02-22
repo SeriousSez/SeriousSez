@@ -27,12 +27,14 @@ namespace SeriousSez.ApplicationService.Services
         private readonly IFridgeService _fridgeService;
 
         public UserService(
-            ILogger<UserService> logger, 
-            IMapper mapper, 
-            UserManager<User> userManager, 
-            IUserRepository userRepository, 
-            IIdentityManager identityManager, 
+            ILogger<UserService> logger,
+            IMapper mapper,
+            UserManager<User> userManager,
+            IUserRepository userRepository,
+            IIdentityManager identityManager,
             IFavoriteRepository favoriteRepository,
+            IRecipeRepository recipeRepository,
+            IIngredientRepository ingredientRepository,
             IFridgeService fridgeService)
         {
             _logger = logger;
@@ -41,6 +43,8 @@ namespace SeriousSez.ApplicationService.Services
             _userRepository = userRepository;
             _identityManager = identityManager;
             _favoriteRepository = favoriteRepository;
+            _recipeRepository = recipeRepository;
+            _ingredientRepository = ingredientRepository;
             _fridgeService = fridgeService;
         }
 
@@ -51,24 +55,24 @@ namespace SeriousSez.ApplicationService.Services
             if (result.Succeeded == false)
                 return result;
 
-            _logger.LogTrace("Created UserIdentity", result);
+            _logger.LogTrace("Created UserIdentity. Result: {@Result}", result);
 
-            if(string.IsNullOrEmpty(model.Role) == false)
+            if (string.IsNullOrEmpty(model.Role) == false)
             {
                 if (await _identityManager.RoleExistsAsync(model.Role) == false)
                     await _identityManager.CreateRoleAsync(model.Role);
 
                 await _identityManager.AddUserToRoleAsync(userIdentity.Id, model.Role);
-                _logger.LogTrace($"Added User: {model.Username} to Role: {model.Role}", result);
+                _logger.LogTrace("Added User: {Username} to Role: {Role}. Result: {@Result}", model.Username, model.Role, result);
             }
 
             //await _userRepository.Create(userIdentity);
             //await _userManager.CreateAsync(userIdentity, model.Password);
-            _logger.LogTrace("User created!", userIdentity);
+            _logger.LogTrace("User created! User: {@User}", userIdentity);
 
             await CreateSettings(userIdentity);
 
-            var newUser = await _favoriteRepository.Create(new Favorites { User = userIdentity } );
+            var newUser = await _favoriteRepository.Create(new Favorites { User = userIdentity });
 
             await _fridgeService.AddHomeFridge(newUser.User);
 
@@ -92,12 +96,12 @@ namespace SeriousSez.ApplicationService.Services
                     await _identityManager.CreateRoleAsync(model.Role);
 
                 await _identityManager.AddUserToRoleAsync(user.Id, model.Role);
-                _logger.LogTrace($"Added User: {model.Username} to Role: {model.Role}", user);
+                _logger.LogTrace("Added User: {Username} to Role: {Role}. User: {@User}", model.Username, model.Role, user);
             }
 
             await _userRepository.Update(user);
             await _userManager.UpdateAsync(user);
-            _logger.LogTrace("User created!", user);
+            _logger.LogTrace("User created! User: {@User}", user);
 
             return _mapper.Map<UserResponse>(user);
         }
@@ -111,10 +115,10 @@ namespace SeriousSez.ApplicationService.Services
             if (result.Succeeded == false)
                 return result;
 
-            _logger.LogTrace("Deleted UserIdentity", result);
+            _logger.LogTrace("Deleted UserIdentity. Result: {@Result}", result);
 
             await _userRepository.Delete(userIdentity);
-            _logger.LogTrace("User Deleted!", userIdentity);
+            _logger.LogTrace("User Deleted! User: {@User}", userIdentity);
 
             return result;
         }
@@ -227,7 +231,7 @@ namespace SeriousSez.ApplicationService.Services
             settings.MyRecipesTheme = model.MyRecipesTheme;
 
             await _userRepository.UpdateSettings(settings);
-            _logger.LogTrace("User created!", user);
+            _logger.LogTrace("User created! User: {@User}", user);
 
             return _mapper.Map<UserSettingsResponse>(settings);
         }
@@ -246,12 +250,12 @@ namespace SeriousSez.ApplicationService.Services
             var favorites = await _favoriteRepository.GetByUserFull(user);
             if (favorites != null)
             {
-                if(favorites.Recipes.Count > 0)
+                if (favorites.Recipes.Count > 0)
                 {
                     await _recipeRepository.DeleteRange(favorites.Recipes);
                 }
 
-                if(favorites.Ingredients.Count > 0)
+                if (favorites.Ingredients.Count > 0)
                     await _ingredientRepository.DeleteRange(favorites.Ingredients);
 
                 await _favoriteRepository.Delete(favorites);

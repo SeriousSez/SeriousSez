@@ -26,7 +26,7 @@ namespace SeriousSez.Api.Controllers
         {
             var favorites = await _favoriteService.Get(username);
 
-            _logger.LogTrace("Favorites fetched!", favorites);
+            _logger.LogTrace("Favorites fetched! Favorites: {@Favorites}", favorites);
             return new OkObjectResult(favorites);
         }
 
@@ -35,7 +35,7 @@ namespace SeriousSez.Api.Controllers
         {
             var favorites = await _favoriteService.IsFavored(username, title, creator);
 
-            _logger.LogTrace("Favorites fetched!", favorites);
+            _logger.LogTrace("Favorites fetched! Favorites: {@Favorites}", favorites);
             return new OkObjectResult(favorites);
         }
 

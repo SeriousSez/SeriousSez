@@ -48,7 +48,7 @@ namespace SeriousSez.Api.Controllers
 
             await DeleteUsersAsync(users);
 
-            _logger.LogTrace("Users have been deleted!", users);
+            _logger.LogTrace("Users have been deleted! Users: {@Users}", users);
 
             var cleanedUsers = await _userService.GetAll();
 
@@ -66,7 +66,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch users!");
             }
 
-            _logger.LogTrace("Users fetched!", users);
+            _logger.LogTrace("Users fetched! Users: {@Users}", users);
             return new OkObjectResult(users);
         }
 
@@ -80,7 +80,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch roles!");
             }
 
-            _logger.LogTrace("Roles fetched!", roles);
+            _logger.LogTrace("Roles fetched! Roles: {@Roles}", roles);
             return new OkObjectResult(roles);
         }
 
@@ -97,7 +97,7 @@ namespace SeriousSez.Api.Controllers
             {
                 var result = await _userService.Delete(user);
                 if (result.Succeeded == false)
-                    _logger.LogError($"Failed to delete user '{user.Id}'", result.Errors);
+                    _logger.LogError("Failed to delete user {UserId}. Errors: {@Errors}", user.Id, result.Errors);
             }
         }
     }

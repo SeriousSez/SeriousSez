@@ -31,7 +31,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch Fridges!");
             }
 
-            _logger.LogTrace("Fridges fetched!", fridges);
+            _logger.LogTrace("Fridges fetched! Fridges: {@Fridges}", fridges);
             return new OkObjectResult(fridges);
         }
 
@@ -69,7 +69,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch Groceries!");
             }
 
-            _logger.LogTrace("Groceries fetched!", groceries);
+            _logger.LogTrace("Groceries fetched! Groceries: {@Groceries}", groceries);
             return new OkObjectResult(groceries);
         }
 

@@ -50,7 +50,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch Ingredients!");
             }
 
-            _logger.LogTrace("Ingredients fetched!", ingredients);
+            _logger.LogTrace("Ingredients fetched! Ingredients: {@Ingredients}", ingredients);
             return new OkObjectResult(ingredients);
         }
 
@@ -64,7 +64,7 @@ namespace SeriousSez.Api.Controllers
 
             var result = await _ingredientService.Update(ingredient);
 
-            _logger.LogTrace("Ingredient has been updated!", result);
+            _logger.LogTrace("Ingredient has been updated! Ingredient: {@Ingredient}", result);
 
             return new OkObjectResult(result);
         }
@@ -85,7 +85,7 @@ namespace SeriousSez.Api.Controllers
                     await _imageService.Delete(ingredient.Image);
             }
 
-            _logger.LogTrace("Ingredients have been deleted!", ingredients);
+            _logger.LogTrace("Ingredients have been deleted! Ingredients: {@Ingredients}", ingredients);
 
             var cleanedUsers = await _ingredientService.GetAll();
 

@@ -33,7 +33,7 @@ namespace SeriousSez.Api.Controllers
             }
 
             var recipe = await _recipeService.Create(model);
-            if (recipe == null) 
+            if (recipe == null)
                 return BadRequest("Failed to create recipe!");
 
             return new OkObjectResult(recipe);
@@ -47,10 +47,10 @@ namespace SeriousSez.Api.Controllers
             {
                 return BadRequest(ModelState);
             }
-            
+
             var result = await _recipeService.Update(recipe);
-             
-            _logger.LogTrace("Recipe has been updated!", result);
+
+            _logger.LogTrace("Recipe has been updated! Recipe: {@Recipe}", result);
 
             return new OkObjectResult(result);
         }
@@ -72,7 +72,7 @@ namespace SeriousSez.Api.Controllers
                     return NotFound("Ingredient could not be found!");
             }
 
-            _logger.LogTrace("Ingredients have been deleted!", ingredients);
+            _logger.LogTrace("Ingredients have been deleted! Ingredients: {@Ingredients}", ingredients);
 
             return new OkResult();
         }
@@ -101,7 +101,7 @@ namespace SeriousSez.Api.Controllers
                 var result = await _recipeService.Delete(id);
             }
 
-            _logger.LogTrace("Recipes have been deleted!", recipeIds);
+            _logger.LogTrace("Recipes have been deleted! RecipeIds: {@RecipeIds}", recipeIds);
 
             var cleanedRecipes = await _recipeService.GetAll();
 
@@ -118,7 +118,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch recipe!");
             }
 
-            _logger.LogTrace("Recipe fetched!", recipe);
+            _logger.LogTrace("Recipe fetched! Recipe: {@Recipe}", recipe);
             return new OkObjectResult(recipe);
         }
 
@@ -132,7 +132,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch recipes!");
             }
 
-            _logger.LogTrace("Recipes fetched!", recipes);
+            _logger.LogTrace("Recipes fetched! Recipes: {@Recipes}", recipes);
             return new OkObjectResult(recipes);
         }
 
@@ -146,7 +146,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch recipes!");
             }
 
-            _logger.LogTrace("Recipes fetched!", recipes);
+            _logger.LogTrace("Recipes fetched! Recipes: {@Recipes}", recipes);
             return new OkObjectResult(recipes);
         }
 
@@ -160,7 +160,7 @@ namespace SeriousSez.Api.Controllers
                 return new NotFoundObjectResult("Failed to fetch recipes by ingredient!");
             }
 
-            _logger.LogTrace("Recipes fetched!", users);
+            _logger.LogTrace("Recipes fetched! Recipes: {@Recipes}", users);
             return new OkObjectResult(users);
         }
     }
