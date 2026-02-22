@@ -188,6 +188,24 @@ jobs:
           name: api-publish
           path: ${{ env.PUBLISH_PATH }}/
 
+      - name: Harden web.config for production startup
+        shell: pwsh
+        run: |
+          $webConfig = Join-Path "${{ env.PUBLISH_PATH }}" "web.config"
+          if (Test-Path $webConfig) {
+            (Get-Content $webConfig -Raw) -replace 'stdoutLogEnabled="true"', 'stdoutLogEnabled="false"' | Set-Content $webConfig -Encoding UTF8
+          }
+
+          $logsDir = Join-Path "${{ env.PUBLISH_PATH }}" "logs"
+          if (-not (Test-Path $logsDir)) {
+            New-Item -ItemType Directory -Path $logsDir | Out-Null
+          }
+
+          $placeholder = Join-Path $logsDir ".keep"
+          if (-not (Test-Path $placeholder)) {
+            Set-Content -Path $placeholder -Value "keep" -Encoding UTF8
+          }
+
       - name: Create app_offline.htm
         shell: pwsh
         run: |
