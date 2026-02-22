@@ -211,9 +211,6 @@ jobs:
       - name: Create app_offline.htm
         shell: pwsh
         run: |
-          $offlineDir = Join-Path $env:RUNNER_TEMP "offline"
-          New-Item -ItemType Directory -Path $offlineDir -Force | Out-Null
-
           $content = @"
           <!DOCTYPE html>
           <html>
@@ -226,7 +223,7 @@ jobs:
           </body>
           </html>
           "@
-            Set-Content -Path (Join-Path $offlineDir "app_offline.htm") -Value $content
+          Set-Content -Path "${{ env.PUBLISH_PATH }}/app_offline.htm" -Value $content
 
       - name: Deploy app_offline.htm to take app offline
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
@@ -234,7 +231,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ${{ runner.temp }}/offline/
+          local-dir: ${{ env.PUBLISH_PATH }}/
           server-dir: /recipes.api/
           dangerous-clean-slate: false
 
@@ -250,7 +247,23 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ${{ env.PUBLISH_PATH }}/
           server-dir: /recipes.api/
-          dangerous-clean-slate: true
+          dangerous-clean-slate: false
+
+      - name: Remove app_offline.htm from local publish folder
+        shell: pwsh
+        run: |
+          Remove-Item "${{ env.PUBLISH_PATH }}/app_offline.htm" -Force -ErrorAction SilentlyContinue
+          Write-Host "Removed app_offline.htm from local folder"
+
+      - name: Deploy to remove app_offline.htm from server
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ${{ env.PUBLISH_PATH }}/
+          server-dir: /recipes.api/
+          dangerous-clean-slate: false
 
       - name: Wait for app to restart
         shell: pwsh
