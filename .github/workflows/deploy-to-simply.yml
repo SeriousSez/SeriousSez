@@ -124,6 +124,7 @@ jobs:
             --configuration Release `
             --runtime ${{ env.RUNTIME_IDENTIFIER }} `
             --self-contained true `
+            -p:CopyLocalLockFileAssemblies=true `
             --output ${{ env.PUBLISH_PATH }}
           echo "publish_path=${{ env.PUBLISH_PATH }}" >> $env:GITHUB_OUTPUT
 
@@ -197,6 +198,7 @@ jobs:
           $publishDir = "${{ env.PUBLISH_PATH }}"
           $exePath = Join-Path $publishDir "SeriousSez.Api.exe"
           $webConfigPath = Join-Path $publishDir "web.config"
+          $identityEfPath = Join-Path $publishDir "Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll"
 
           if (-not (Test-Path $exePath)) {
             throw "Missing SeriousSez.Api.exe in publish output."
@@ -204,6 +206,10 @@ jobs:
 
           if (-not (Test-Path $webConfigPath)) {
             throw "Missing web.config in publish output."
+          }
+
+          if (-not (Test-Path $identityEfPath)) {
+            throw "Missing Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll in publish output."
           }
 
           $webConfig = Get-Content $webConfigPath -Raw
