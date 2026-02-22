@@ -70,7 +70,7 @@ namespace SeriousSez.ApplicationService.Services
             //await _userManager.CreateAsync(userIdentity, model.Password);
             _logger.LogTrace("User created! User: {@User}", userIdentity);
 
-            await CreateSettings(userIdentity);
+            await EnsureSettingsExists(userIdentity);
 
             var newUser = await _favoriteRepository.Create(new Favorites { User = userIdentity });
 
@@ -207,16 +207,41 @@ namespace SeriousSez.ApplicationService.Services
 
         private async Task CreateSettings(User user)
         {
-            var settings = new UserSettings
-            {
-                Theme = "Light",
-                RecipesTheme = "Pretty",
-                MyRecipesTheme = "Pretty",
-                UserId = user.Id,
-                Identity = user
-            };
+            if (user == null)
+                return;
+
+            var existingSettings = await _userRepository.GetSettings(user);
+            if (existingSettings != null)
+                return;
+
+            var settings = CreateDefaultSettings(user);
 
             await _userRepository.CreateSettings(settings);
+        }
+
+        public async Task<(int Created, int Existing)> BackfillMissingSettings()
+        {
+            var users = await _userRepository.GetAll();
+            var created = 0;
+            var existing = 0;
+
+            foreach (var user in users)
+            {
+                if (user == null)
+                    continue;
+
+                var settings = await _userRepository.GetSettings(user);
+                if (settings != null)
+                {
+                    existing++;
+                    continue;
+                }
+
+                await _userRepository.CreateSettings(CreateDefaultSettings(user));
+                created++;
+            }
+
+            return (created, existing);
         }
 
         public async Task<UserSettingsResponse> UpdateSettings(UserSettingsUpdateViewModel model)
@@ -225,7 +250,10 @@ namespace SeriousSez.ApplicationService.Services
             if (user == null)
                 return null;
 
-            var settings = await _userRepository.GetSettings(user);
+            var settings = await EnsureSettingsExists(user);
+            if (settings == null)
+                return null;
+
             settings.PreferredLanguage = model.PreferredLanguage;
             settings.Theme = model.Theme;
             settings.RecipesTheme = model.RecipesTheme;
@@ -242,7 +270,13 @@ namespace SeriousSez.ApplicationService.Services
         public async Task<UserSettingsResponse> GetSettings(Guid id)
         {
             var user = await _userRepository.GetByUserId(id);
-            var settings = await _userRepository.GetSettings(user);
+            if (user == null)
+                return null;
+
+            var settings = await EnsureSettingsExists(user);
+            if (settings == null)
+                return null;
+
             settings.MyRecipesTheme = settings.MyRecipesTheme ?? settings.RecipesTheme;
             var settingsResponse = _mapper.Map<UserSettingsResponse>(settings);
             settingsResponse.MyRecipesTheme = settings.MyRecipesTheme;
@@ -267,7 +301,34 @@ namespace SeriousSez.ApplicationService.Services
             }
 
             var settings = await _userRepository.GetSettings(user);
-            await _userRepository.DeleteSettings(settings);
+            if (settings != null)
+                await _userRepository.DeleteSettings(settings);
+        }
+
+        private async Task<UserSettings> EnsureSettingsExists(User user)
+        {
+            if (user == null)
+                return null;
+
+            var settings = await _userRepository.GetSettings(user);
+            if (settings != null)
+                return settings;
+
+            settings = CreateDefaultSettings(user);
+            await _userRepository.CreateSettings(settings);
+            return settings;
+        }
+
+        private static UserSettings CreateDefaultSettings(User user)
+        {
+            return new UserSettings
+            {
+                Theme = "Light",
+                RecipesTheme = "Pretty",
+                MyRecipesTheme = "Pretty",
+                UserId = user.Id,
+                Identity = user
+            };
         }
     }
 }

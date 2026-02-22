@@ -329,7 +329,7 @@ namespace SeriousSez.ApplicationService.Services
                 Description = ingredient.Description,
                 Amount = recipeIngredient.Amount,
                 AmountType = recipeIngredient.AmountType,
-                Image = _mapper.Map<ImageResponse>(ingredient.Image),
+                Image = null,
                 Created = recipeIngredient.Created
             };
 

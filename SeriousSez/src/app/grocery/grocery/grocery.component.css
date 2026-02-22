@@ -1,28 +1,34 @@
 @media screen and (min-device-width : 601px) {
-    .computer{
+    .computer {
         display: block;
     }
 
-    .mobile{
+    .mobile {
         display: none;
     }
 }
 
 @media screen and (max-device-width : 600px) {
-    .computer{
+    .computer {
         display: none;
     }
 
-    .mobile{
+    .mobile {
         display: block;
     }
 
-    td{
+    td {
         text-overflow: ellipsis;
     }
 
-    span{
+    span {
         float: left !important;
         margin-top: .5rem;
     }
+}
+
+.ingredient-image-skeleton {
+    min-height: 180px;
+    background-color: #e9ecef;
+    border: 1px solid #dee2e6;
 }

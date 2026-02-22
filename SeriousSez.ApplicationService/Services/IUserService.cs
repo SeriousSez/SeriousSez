@@ -21,6 +21,7 @@ namespace SeriousSez.ApplicationService.Services
         Task<IEnumerable<UserResponse>> GetAll();
         Task<UserSettingsResponse> GetSettings(Guid id);
         Task<UserSettingsResponse> UpdateSettings(UserSettingsUpdateViewModel model);
+        Task<(int Created, int Existing)> BackfillMissingSettings();
         List<string> GetRoles();
         Task AddRoleToUser(UserResponse user);
     }

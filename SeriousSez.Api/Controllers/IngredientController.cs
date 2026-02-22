@@ -54,6 +54,32 @@ namespace SeriousSez.Api.Controllers
             return new OkObjectResult(ingredients);
         }
 
+        [HttpGet("getalllite")]
+        public async Task<IActionResult> GetAllLite()
+        {
+            var ingredients = await _ingredientService.GetAllLite();
+            if (ingredients == null)
+            {
+                _logger.LogError("Failed to fetch Ingredients (lite)!");
+                return new NotFoundObjectResult("Failed to fetch Ingredients!");
+            }
+
+            _logger.LogTrace("Ingredients fetched (lite)! Ingredients: {@Ingredients}", ingredients);
+            return new OkObjectResult(ingredients);
+        }
+
+        [HttpGet("getbyname")]
+        public async Task<IActionResult> GetByName(string name)
+        {
+            var ingredient = await _ingredientService.GetByName(name);
+            if (ingredient == null)
+            {
+                return new NotFoundResult();
+            }
+
+            return new OkObjectResult(ingredient);
+        }
+
         [HttpPost("update")]
         public async Task<IActionResult> Update([FromBody] IngredientResponse ingredient)
         {
@@ -90,6 +116,43 @@ namespace SeriousSez.Api.Controllers
             var cleanedUsers = await _ingredientService.GetAll();
 
             return new OkObjectResult(cleanedUsers);
+        }
+
+        [HttpPost("regenerateimages")]
+        public async Task<IActionResult> RegenerateImages([FromQuery] string[] excludeNames = null)
+        {
+            var (updated, skipped, failed, failedNames) = await _ingredientService.RegenerateImages(excludeNames);
+
+            _logger.LogInformation("Ingredient image regeneration completed. Updated: {Updated}, Skipped: {Skipped}, Failed: {Failed}", updated, skipped, failed);
+
+            return new OkObjectResult(new
+            {
+                Updated = updated,
+                Skipped = skipped,
+                Failed = failed,
+                FailedNames = failedNames
+            });
+        }
+
+        [HttpPost("regenerateimage")]
+        public async Task<IActionResult> RegenerateImage([FromQuery] string name)
+        {
+            var (updated, error, ingredient) = await _ingredientService.RegenerateImage(name);
+            if (!updated)
+            {
+                if (!string.IsNullOrWhiteSpace(error) && error.Contains("was not found"))
+                {
+                    return new NotFoundObjectResult(new { Updated = false, Error = error });
+                }
+
+                return new BadRequestObjectResult(new { Updated = false, Error = error });
+            }
+
+            return new OkObjectResult(new
+            {
+                Updated = true,
+                Ingredient = ingredient
+            });
         }
     }
 }

@@ -11,37 +11,51 @@
       <th scope="col">#</th>
       <th scope="col" class="cursor-pointer" (click)="sort('name')">Ingredient @if (sortSetting == 'name') {
         <i class="fas fa-sort"></i>
-      }</th>
+        }
+      </th>
       <th scope="col" class="cursor-pointer" (click)="sort('created')">Created @if (sortSetting == 'created') {
         <i class="fas fa-sort"></i>
-      }</th>
+        }
+      </th>
     </tr>
   </thead>
   @for (ingredient of ingredients; track ingredient; let i = $index) {
-    <tbody>
-      <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed">
-        <th scope="row">
-          <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" (click)="toggleIngredientSelected(ingredient)">
-        </th>
-        <td class="cursor-pointer" (click)="toggleAccordion('accordion' + i, 'table-row' + i)">
-          {{ingredient.name}}
-        </td>
-        <td class="cursor-pointer" (click)="toggleAccordion('accordion' + i, 'table-row' + i)">
-          {{displayDateOnly(ingredient.created)}}
-        </td>
-      </tr>
-      <tr>
-        <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr">
-          @if (!ingredient.image) {
-            <img class="col-3 figure-img img-fluid rounded" src="assets/images/milk.jpg">
-          }
-          @if (ingredient.image) {
-            <img [src]="ingredient.image.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image.caption">
-          }
-          <div class="col-9 list-group list-group-flush float-end ps-3"><h5>Description</h5>{{ingredient.description}}</div>
-        </td>
-      </tr>
-    </tbody>
+  <tbody>
+    <tr id="table-row{{i}}" tabindex="1" class="clickable collapsed" [class.ingredient-disabled]="isIngredientBusy(ingredient)">
+      <th scope="row">
+        <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" [disabled]="isIngredientBusy(ingredient)" (click)="toggleIngredientSelected(ingredient)">
+      </th>
+      <td class="cursor-pointer" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
+        {{ingredient.name}}
+      </td>
+      <td class="cursor-pointer" (click)="toggleAccordionIfAvailable(ingredient, 'accordion' + i, 'table-row' + i)">
+        {{displayDateOnly(ingredient.created)}}
+      </td>
+    </tr>
+    <tr>
+      <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr" [class.ingredient-disabled]="isIngredientBusy(ingredient)">
+        @if (isIngredientDetailsLoading(ingredient)) {
+        <div class="col-3 figure-img img-fluid rounded ingredient-image-skeleton"></div>
+        }
+        @if (ingredient.image && !isIngredientDetailsLoading(ingredient)) {
+        <img [src]="ingredient.image.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image.caption">
+        }
+        <div class="col-9 list-group list-group-flush float-end ps-3">
+          <h5>
+            Description
+            <button class="btn btn-outline-dark btn-sm float-end" type="button" [disabled]="isIngredientBusy(ingredient)" (click)="regenerateIngredientImage(ingredient)">
+              @if (isIngredientBusy(ingredient)) {
+              Regenerating...
+              } @else {
+              Regenerate image
+              }
+            </button>
+          </h5>
+          {{ingredient.description}}
+        </div>
+      </td>
+    </tr>
+  </tbody>
   }
 </table>
 
@@ -50,15 +64,15 @@
     <h5 class="offcanvas-title" id="deleteModalLabel">
       Delete -
       @for (ingredient of selectedIngredients; track ingredient; let isLast = $last) {
-        <small>
-          {{ingredient.name}}
-          @if (!isLast) {
-            <small>, </small>
-          }
-        </small>
+      <small>
+        {{ingredient.name}}
+        @if (!isLast) {
+        <small>, </small>
+        }
+      </small>
       }
       @if (selectedIngredients.length == 0) {
-        <small>No ingredients selected</small>
+      <small>No ingredients selected</small>
       }
     </h5>
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -75,7 +89,7 @@
     <div class="modal-content">
       <div class="modal-body" #container>
         @if (ingredients) {
-          <app-ingredient-modal [ingredients]="ingredients" (finish)="closeIngredientModal($event)"></app-ingredient-modal>
+        <app-ingredient-modal [ingredients]="ingredients" (finish)="closeIngredientModal($event)"></app-ingredient-modal>
         }
       </div>
     </div>

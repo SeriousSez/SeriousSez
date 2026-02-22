@@ -63,6 +63,7 @@ namespace SeriousSez
             services.AddScoped<IRecipeService, RecipeService>();
             services.AddScoped<IIngredientService, IngredientService>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddHttpClient<OpenAiIngredientImageGenerator>();
             services.AddHttpClient<LocalStableDiffusionIngredientImageGenerator>();
             services.AddHttpClient<WikipediaIngredientImageGenerator>();
             services.AddScoped<IIngredientImageGenerator, IngredientImageGenerator>();

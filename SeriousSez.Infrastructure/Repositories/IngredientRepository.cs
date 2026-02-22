@@ -26,6 +26,11 @@ namespace SeriousSez.Infrastructure.Repositories
             return await _context.Ingredients.Include(i => i.Image).FirstOrDefaultAsync(i => i.Name == name);
         }
 
+        public async Task<IEnumerable<Ingredient>> GetAllLite()
+        {
+            return await _context.Ingredients.AsNoTracking().ToListAsync();
+        }
+
         public async Task<IEnumerable<Ingredient>> GetAllFull()
         {
             return await _context.Ingredients.Include(i => i.Image).ToListAsync();

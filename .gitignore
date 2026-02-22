@@ -258,6 +258,9 @@ ServiceFabricBackup/
 *- Backup*.rdl
 
 # Microsoft Fakes
+
+# Local development secrets/config overrides
+SeriousSez.Api/appsettings.Development.local.json
 FakesAssemblies/
 
 # GhostDoc plugin setting file

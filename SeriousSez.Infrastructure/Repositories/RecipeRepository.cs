@@ -35,7 +35,6 @@ namespace SeriousSez.Infrastructure.Repositories
             var recipe = await _context.Recipes
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
-                        .ThenInclude(i => i.Image)
                 .Include(r => r.Creator)
                 .Include(r => r.Image)
                 .FirstOrDefaultAsync(r => r.Id == id);
@@ -53,7 +52,6 @@ namespace SeriousSez.Infrastructure.Repositories
             var recipe = await _context.Recipes
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
-                        .ThenInclude(i => i.Image)
                 .Include(r => r.Creator)
                 .Include(r => r.Image)
                 .FirstOrDefaultAsync(r => r.Title == title);
@@ -72,7 +70,6 @@ namespace SeriousSez.Infrastructure.Repositories
             var recipe = await _context.Recipes
                 .Include(r => r.RecipeIngredients)
                     .ThenInclude(ri => ri.Ingredient)
-                        .ThenInclude(i => i.Image)
                 .Include(r => r.Creator)
                 .Include(r => r.Image)
                 .FirstOrDefaultAsync(r => r.Title == title && r.Creator.UserName == creator);

@@ -183,6 +183,7 @@ export class RecipeComponent implements OnInit {
     this.title = recipe.title;
     this.creator = recipe.creator;
     this.recipeId = recipe.id;
+    this.setCurrentIngredients();
     this.originalImageUrl = recipe.image != null ? recipe.image.url : "../assets/images/food.png";
     this.isFavored(recipe);
     this.isInGroceries(recipe);
@@ -197,7 +198,6 @@ export class RecipeComponent implements OnInit {
     this.ingredientService.getIngredients()
       .subscribe((ingredients: Ingredient[]) => {
         this.ingredients = ingredients;
-        this.setCurrentIngredients();
       },
         error => {
           //this.notificationService.printErrorMessage(error);
@@ -205,6 +205,8 @@ export class RecipeComponent implements OnInit {
   }
 
   setCurrentIngredients() {
+    this.currentIngredients = [];
+
     if (this.recipe.ingredients != null) {
       this.recipe.ingredients.forEach(ingredient => {
         this.currentIngredients.push(this.createIngredientModel(ingredient));

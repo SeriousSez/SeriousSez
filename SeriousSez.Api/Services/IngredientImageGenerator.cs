@@ -9,15 +9,18 @@ namespace SeriousSez.Api.Services
     public class IngredientImageGenerator : IIngredientImageGenerator
     {
         private readonly IConfiguration _configuration;
+        private readonly OpenAiIngredientImageGenerator _openAiGenerator;
         private readonly LocalStableDiffusionIngredientImageGenerator _stableDiffusionGenerator;
         private readonly WikipediaIngredientImageGenerator _wikipediaGenerator;
 
         public IngredientImageGenerator(
             IConfiguration configuration,
+            OpenAiIngredientImageGenerator openAiGenerator,
             LocalStableDiffusionIngredientImageGenerator stableDiffusionGenerator,
             WikipediaIngredientImageGenerator wikipediaGenerator)
         {
             _configuration = configuration;
+            _openAiGenerator = openAiGenerator;
             _stableDiffusionGenerator = stableDiffusionGenerator;
             _wikipediaGenerator = wikipediaGenerator;
         }
@@ -32,6 +35,17 @@ namespace SeriousSez.Api.Services
             }
 
             var provider = section["Provider"] ?? "Wikipedia";
+
+            if (provider.Equals("OpenAI", StringComparison.OrdinalIgnoreCase))
+            {
+                var openAi = await _openAiGenerator.GenerateAsync(ingredientName, description);
+                if (openAi != null)
+                {
+                    return openAi;
+                }
+
+                return await _wikipediaGenerator.GenerateAsync(ingredientName, description);
+            }
 
             if (provider.Equals("StableDiffusion", StringComparison.OrdinalIgnoreCase))
             {

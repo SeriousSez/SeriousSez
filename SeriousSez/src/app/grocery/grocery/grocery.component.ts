@@ -2,21 +2,25 @@ import { DatePipe } from '@angular/common';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { Ingredient } from 'src/app/recipe/models/ingredient.interface';
+import { IngredientService } from 'src/app/recipe/services/ingredient.service';
 import { GroceryService } from 'src/app/shared/services/grocery.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
-    selector: 'app-grocery',
-    templateUrl: './grocery.component.html',
-    styleUrls: ['./grocery.component.css'],
-    standalone: false
+  selector: 'app-grocery',
+  templateUrl: './grocery.component.html',
+  styleUrls: ['./grocery.component.css'],
+  standalone: false
 })
 export class GroceryComponent implements OnInit {
   @ViewChild('ingredientModal') private ingredientModal: ElementRef;
   @ViewChild('deleteButton') private deleteButton: ElementRef;
 
   targetUrl: string = '/dashboard/createingredients';
-  
+
   ingredients: Ingredient[];
+  loadingIngredientDetails: Set<string> = new Set<string>();
+  loadedIngredientDetails: Set<string> = new Set<string>();
 
   selectedIngredients: Ingredient[] = [];
   openedAccordion: string;
@@ -25,66 +29,66 @@ export class GroceryComponent implements OnInit {
   public sortSetting: string = 'name';
   public ascending: boolean = true;
 
-  constructor(private groceryService: GroceryService, private datepipe: DatePipe, private router: Router) { }
+  constructor(private groceryService: GroceryService, private ingredientService: IngredientService, private datepipe: DatePipe, private router: Router) { }
 
   ngOnInit() {
     this.getIngredients();
   }
 
-  getIngredients(){
+  getIngredients() {
     this.ingredients = this.groceryService.getIngredientList();
   }
 
-  save(){
+  save() {
     this.groceryService.createGroceryList().subscribe(result => {
-      
+
     }, error => {
 
     });
   }
 
-  removeSelectedFromIngredients(){
+  removeSelectedFromIngredients() {
     this.ingredients.forEach(ingredient => {
       this.groceryService.removeIngredientFromList(ingredient);
     });
   }
 
-  toggleIngredientSelected(ingredient: Ingredient){
+  toggleIngredientSelected(ingredient: Ingredient) {
     var index = this.selectedIngredients.indexOf(ingredient, 0);
     if (index > -1) {
       this.selectedIngredients.splice(index, 1);
-    }else{
+    } else {
       this.selectedIngredients.push(ingredient);
     }
   }
 
-  removeIngredientFromList(ingredient: Ingredient){
+  removeIngredientFromList(ingredient: Ingredient) {
     var index = this.ingredients.indexOf(ingredient, 0);
     if (index > -1) {
       this.ingredients.splice(index, 1);
-    }else{
+    } else {
       this.ingredients.push(ingredient);
     }
 
     this.getIngredients();
   }
 
-  displayDateOnly(created: string){
+  displayDateOnly(created: string) {
     return this.datepipe.transform(created, 'dd-MM-yyyy');
   }
 
-  sort(sortSetting: string){
+  sort(sortSetting: string) {
     this.toggleAccordion(this.openedAccordion, this.clickedTableRow);
-    if(this.sortSetting != sortSetting) this.ascending = true;
+    if (this.sortSetting != sortSetting) this.ascending = true;
     this.sortSetting = sortSetting;
 
-    switch(sortSetting){
+    switch (sortSetting) {
       case 'name':
-        this.ingredients.sort((a, b) => this.ascending == true ? a.name.localeCompare(b.name): -( a.name.localeCompare(b.name)) );
+        this.ingredients.sort((a, b) => this.ascending == true ? a.name.localeCompare(b.name) : -(a.name.localeCompare(b.name)));
         this.ascending = !this.ascending;
         return;
       case 'created':
-        this.ingredients.sort((a, b) => this.ascending == true ? a.created.localeCompare(b.created) : -a.created.localeCompare(b.created) );
+        this.ingredients.sort((a, b) => this.ascending == true ? a.created.localeCompare(b.created) : -a.created.localeCompare(b.created));
         this.ascending = !this.ascending;
         return;
     }
@@ -99,21 +103,21 @@ export class GroceryComponent implements OnInit {
     this.deleteButton.nativeElement.click();
   }
 
-  toggleAccordion(id: string, tableRowId: string){
+  toggleAccordion(id: string, tableRowId: string) {
     this.toggleTableRowClass(tableRowId);
 
     var accordion = document.getElementById(id);
-    if(accordion == null) return;
+    if (accordion == null) return;
 
     this.handleAccordionStyle(accordion, id, tableRowId);
   }
 
-  handleAccordionStyle(accordion: HTMLElement, id: string, tableRowId: string){
-    if(accordion.style.display == 'table-cell'){
+  handleAccordionStyle(accordion: HTMLElement, id: string, tableRowId: string) {
+    if (accordion.style.display == 'table-cell') {
       accordion.style.display = 'none';
       this.openedAccordion = '';
       this.clickedTableRow = '';
-    }else{
+    } else {
       this.toggleAccordion(this.openedAccordion, this.clickedTableRow);
       accordion.style.display = 'table-cell';
       this.openedAccordion = id;
@@ -121,14 +125,50 @@ export class GroceryComponent implements OnInit {
     }
   }
 
-  toggleTableRowClass(tableRowId: string){
-    if(tableRowId != ''){
+  toggleTableRowClass(tableRowId: string) {
+    if (tableRowId != '') {
       var tableRow = document.getElementById(tableRowId);
-      if(tableRow?.classList.contains("collapsed")){
+      if (tableRow?.classList.contains("collapsed")) {
         tableRow?.classList.remove("collapsed");
-      }else{
+      } else {
         tableRow?.classList.add("collapsed");
       }
     }
+  }
+
+  toggleAccordionAndLoad(ingredient: Ingredient, id: string, tableRowId: string) {
+    this.loadIngredientDetailsIfNeeded(ingredient);
+    this.toggleAccordion(id, tableRowId);
+  }
+
+  isIngredientDetailsLoading(ingredient: Ingredient) {
+    return this.loadingIngredientDetails.has(this.getIngredientKey(ingredient));
+  }
+
+  private loadIngredientDetailsIfNeeded(ingredient: Ingredient) {
+    const key = this.getIngredientKey(ingredient);
+    if (key == '' || this.loadingIngredientDetails.has(key) || this.loadedIngredientDetails.has(key)) {
+      return;
+    }
+
+    this.loadingIngredientDetails.add(key);
+    this.ingredientService.getIngredientByName(ingredient.name)
+      .pipe(finalize(() => this.loadingIngredientDetails.delete(key)))
+      .subscribe((result: Ingredient) => {
+        if (!result) {
+          return;
+        }
+
+        ingredient.image = result.image;
+        ingredient.description = result.description;
+        this.loadedIngredientDetails.add(key);
+      },
+        error => {
+          //this.notificationService.printErrorMessage(error);
+        });
+  }
+
+  private getIngredientKey(ingredient: Ingredient) {
+    return ingredient?.name?.trim().toLowerCase() ?? '';
   }
 }

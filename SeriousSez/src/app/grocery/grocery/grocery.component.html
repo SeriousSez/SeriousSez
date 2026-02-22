@@ -30,22 +30,22 @@
         <th scope="row">
           <input class="form-check-input me-1 cursor-pointer" type="checkbox" value="" (click)="toggleIngredientSelected(ingredient)">
         </th>
-        <td class="cursor-pointer">
+        <td class="cursor-pointer" (click)="toggleAccordionAndLoad(ingredient, 'accordion' + i, 'table-row' + i)">
           {{ingredient.name}}
         </td>
-        <td class="cursor-pointer">
+        <td class="cursor-pointer" (click)="toggleAccordionAndLoad(ingredient, 'accordion' + i, 'table-row' + i)">
           {{ingredient.amount}} {{ingredient.amountType}}
         </td>
-        <td class="cursor-pointer" (click)="toggleAccordion('accordion' + i, 'table-row' + i)">
+        <td class="cursor-pointer" (click)="toggleAccordionAndLoad(ingredient, 'accordion' + i, 'table-row' + i)">
           {{displayDateOnly(ingredient.created)}}
         </td>
       </tr>
       <tr>
         <td colspan="12" id="accordion{{i}}" class="accordion-collapse collapse tr">
-          @if (!ingredient.image) {
-          <img class="col-3 figure-img img-fluid rounded" src="assets/images/milk.jpg">
+          @if (isIngredientDetailsLoading(ingredient)) {
+          <div class="col-3 figure-img img-fluid rounded ingredient-image-skeleton"></div>
           }
-          @if (ingredient.image) {
+          @if (ingredient.image && !isIngredientDetailsLoading(ingredient)) {
           <img [src]="ingredient.image.url" class="col-3 figure-img img-fluid rounded" [alt]="ingredient.image.caption">
           }
           <div class="col-9 list-group list-group-flush float-end ps-3">

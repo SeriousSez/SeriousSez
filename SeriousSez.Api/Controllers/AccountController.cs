@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using SeriousSez.ApplicationService.Services;
 using SeriousSez.Domain.Models;
@@ -101,6 +102,21 @@ namespace SeriousSez.Api.Controllers
             _logger.LogTrace("User settings have been updated! Settings: {@Settings}", settings);
 
             return new OkResult();
+        }
+
+        [Authorize(AuthenticationSchemes = "Bearer", Roles = "Admin")]
+        [HttpPost("backfillsettings")]
+        public async Task<IActionResult> BackfillSettings()
+        {
+            var (created, existing) = await _userService.BackfillMissingSettings();
+
+            _logger.LogInformation("User settings backfill completed. Created: {Created}, Existing: {Existing}", created, existing);
+
+            return new OkObjectResult(new
+            {
+                Created = created,
+                Existing = existing
+            });
         }
     }
 }

@@ -134,12 +134,24 @@ namespace SeriousSez.Api.Controllers
         [HttpGet("get")]
         public async Task<IActionResult> Get(string title, string creator)
         {
+            var cacheVersion = GetRecipeCacheVersion();
+            var cacheKey = $"recipes:get:{title?.Trim().ToLowerInvariant()}:{creator?.Trim().ToLowerInvariant()}:v{cacheVersion}";
+            if (_memoryCache.TryGetValue(cacheKey, out RecipeResponse cachedRecipe))
+            {
+                return new OkObjectResult(cachedRecipe);
+            }
+
             var recipe = await _recipeService.Get(title, creator);
             if (recipe == null)
             {
                 _logger.LogError("Failed to fetch recipe!");
                 return new NotFoundObjectResult("Failed to fetch recipe!");
             }
+
+            _memoryCache.Set(cacheKey, recipe, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = CacheTtl
+            });
 
             _logger.LogTrace("Recipe fetched! Recipe: {@Recipe}", recipe);
             return new OkObjectResult(recipe);
@@ -148,12 +160,24 @@ namespace SeriousSez.Api.Controllers
         [HttpGet("getbyid/{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
+            var cacheVersion = GetRecipeCacheVersion();
+            var cacheKey = $"recipes:getbyid:{id}:v{cacheVersion}";
+            if (_memoryCache.TryGetValue(cacheKey, out RecipeResponse cachedRecipe))
+            {
+                return new OkObjectResult(cachedRecipe);
+            }
+
             var recipe = await _recipeService.Get(id);
             if (recipe == null)
             {
                 _logger.LogError("Failed to fetch recipe by id! Id: {RecipeId}", id);
                 return new NotFoundObjectResult("Failed to fetch recipe!");
             }
+
+            _memoryCache.Set(cacheKey, recipe, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = CacheTtl
+            });
 
             _logger.LogTrace("Recipe fetched by id! Recipe: {@Recipe}", recipe);
             return new OkObjectResult(recipe);

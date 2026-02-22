@@ -9,6 +9,7 @@ namespace SeriousSez.Infrastructure.Repositories
         Task<bool> Exists(string name);
         Task<Ingredient> GetByName(string name);
         Task<Ingredient> GetByNameFull(string name);
+        Task<IEnumerable<Ingredient>> GetAllLite();
         Task<IEnumerable<Ingredient>> GetAllFull();
     }
 }
