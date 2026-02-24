@@ -41,17 +41,20 @@ export class RegistrationModal implements OnInit {
     });
   }
 
-  register({ value, valid }: { value: UserRegistration, valid: boolean }) {
+  register() {
+    const value = this.registerForm.value as UserRegistration;
+    const valid = this.registerForm.valid;
+
     this.submitted = true;
-    this.isRequesting = true;
     this.errors = '';
 
     if (valid) {
+      this.isRequesting = true;
       this.userService.register(value, this.baseUrl)
         .subscribe(result => {
           this.finish.next(this.createUserModel());
           this.resetForm();
-          this.router.navigate([this.navigationUrl], { queryParams: { brandNew: true, email: value.email } });
+          this.router.navigate(['/' + this.navigationUrl.replace(/^\/+/, '')], { queryParams: { brandNew: true, email: value.email } });
         }, errors => {
           this.isRequesting = false;
           this.errors = errors.error.Item1.Errors[0].Description;

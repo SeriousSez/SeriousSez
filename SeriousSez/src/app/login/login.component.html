@@ -14,7 +14,7 @@
           <h4 class="card-title">Login</h4>
         </div>
 
-        <form (ngSubmit)="login(loginForm)" [formGroup]="loginForm">
+        <form (ngSubmit)="login()" [formGroup]="loginForm" novalidate>
           <div class="form-group">
             <label for="identity">Username or E-mail</label>
             <input id="identity" type="text" class="form-control" [ngClass]="{ 'is-invalid': f.identity.touched && f.identity.errors }" name="identity" placeholder="Username or E-mail" formControlName="identity" tmFocus validateEmail required>

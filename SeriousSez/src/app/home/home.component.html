@@ -14,8 +14,8 @@
     @if (!status) {
     <div>
       <p class="lead text-muted">Welcome, please sign up or log in to your account below.</p>
-      <a routerLink="/register" class="btn btn-outline-primary btn-lg" style="margin-right: 1vh;">Sign Up</a>
-      <a routerLink="/login" class="btn btn-outline-secondary btn-lg">Log In</a>
+      <button type="button" class="btn btn-outline-primary btn-lg" style="margin-right: 1vh;" (click)="goToRegister()">Sign Up</button>
+      <button type="button" class="btn btn-outline-secondary btn-lg" (click)="goToLogin()">Log In</button>
     </div>
     }
   </div>
