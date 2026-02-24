@@ -37,6 +37,7 @@ export class CreateComponent implements OnInit {
 
   public defaultIngredient: IngredientCreation = { name: "", description: "", amount: 0, amountType: 'Pinch or dash', imageCaption: "", image: null, created: '' };
   public newIngredient: IngredientCreation;
+  public selectedIngredient: Ingredient | null = null;
   public newIngredients: IngredientCreation[] = [];
   public ingredients: Ingredient[];
 
@@ -77,7 +78,7 @@ export class CreateComponent implements OnInit {
   ngOnInit(): void {
     this.getIngredients();
 
-    this.newIngredient = this.defaultIngredient;
+    this.newIngredient = { ...this.defaultIngredient };
     this.imageUrl = this.defaultImageUrl;
     this.recipeForm = this.formBuilder.group({
       title: ['', Validators.required],
@@ -96,7 +97,7 @@ export class CreateComponent implements OnInit {
   }
 
   getIngredients() {
-    this.ingredientService.getIngredients()
+    this.ingredientService.getIngredientsLite()
       .subscribe((ingredients: Ingredient[]) => {
         this.ingredients = ingredients;
         this.ingredients.sort((a, b) => a.name.localeCompare(b.name));
@@ -127,28 +128,34 @@ export class CreateComponent implements OnInit {
     }
   }
 
-  addToNewIngredient(event: any) {
-    this.newIngredient.name = event.Name;
-    this.newIngredient.description = event.Description;
+  addToNewIngredient(event: Ingredient | null) {
+    if (!event) {
+      return;
+    }
+
+    this.newIngredient.name = event.name;
+    this.newIngredient.description = event.description;
   }
 
-  addIngredient(event: any) {
-    if (event.Name != null) {
-      var ingredient: IngredientCreation = { name: event.Name, description: event.Description, amount: event.Amount, amountType: event.AmountType, imageCaption: '', image: null, created: '' }
-      this.newIngredients.push(ingredient);
-      this.resetNewIngredient();
+  addIngredient() {
+    const ingredient: IngredientCreation = {
+      name: this.newIngredient.name,
+      description: this.newIngredient.description,
+      amount: this.newIngredient.amount,
+      amountType: this.newIngredient.amountType,
+      imageCaption: '',
+      image: null,
+      created: ''
+    };
 
-      this.select.nativeElement.value = null;
-    } else {
-      var ingredient: IngredientCreation = { name: this.newIngredient.name, description: this.newIngredient.description, amount: this.newIngredient.amount, amountType: this.newIngredient.amountType, imageCaption: '', image: null, created: '' }
-      this.newIngredients.push(ingredient);
-      this.resetNewIngredient();
-    }
+    this.newIngredients.push(ingredient);
+    this.resetNewIngredient();
+    this.selectedIngredient = null;
+    this.select.nativeElement.value = null;
   }
 
   resetNewIngredient() {
-    this.newIngredient.name = '';
-    this.newIngredient.description = '';
+    this.newIngredient = { ...this.defaultIngredient };
   }
 
   removeIngredient(ingredient: IngredientCreation) {

@@ -139,11 +139,11 @@
                   <caption>
                     Ingredients
                     <div class="form-group d-inline-block float-end ms-3 mobile-float">
-                      <button type="submit" class="btn btn-outline-primary btn-sm" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient($event)">Add ingredient</button>
+                      <button type="submit" class="btn btn-outline-primary btn-sm" [disabled]="!newIngredient.name || !newIngredient.amount || !newIngredient.amountType || isRequesting" (click)="addIngredient()">Add ingredient</button>
                     </div>
                     <div class="form-group d-inline-block float-end mobile-float">
                       <th scope="col" class="d-inline">Pick existing - </th>
-                      <select class="btn btn-white btn-sm dropdown-toggle" name="ingredient" [(ngModel)]="newIngredient" (ngModelChange)="addToNewIngredient($event)" #select>
+                      <select class="btn btn-white btn-sm dropdown-toggle" name="ingredient" [(ngModel)]="selectedIngredient" (ngModelChange)="addToNewIngredient($event)" #select>
                         @for (ingredient of ingredients; track ingredient) {
                         <option class="select-items" [ngValue]="ingredient">{{ingredient.name}}</option>
                         }
