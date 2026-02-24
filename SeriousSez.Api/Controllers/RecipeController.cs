@@ -49,6 +49,8 @@ namespace SeriousSez.Api.Controllers
             if (recipe == null)
                 return BadRequest("Failed to create recipe!");
 
+            TriggerIngredientImageGeneration(model?.Ingredients?.Select(i => i?.Name));
+
             BumpRecipeCacheVersion();
 
             return new OkObjectResult(recipe);
@@ -104,9 +106,51 @@ namespace SeriousSez.Api.Controllers
             if (recipe == null)
                 return BadRequest("Failed to add new ingredients to recipe!");
 
+            TriggerIngredientImageGeneration(ingredients?.Select(i => i?.Name));
+
             BumpRecipeCacheVersion();
 
             return new OkObjectResult(recipe);
+        }
+
+        private void TriggerIngredientImageGeneration(IEnumerable<string> ingredientNames)
+        {
+            var names = ingredientNames?
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => name.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (names == null || names.Count == 0)
+            {
+                return;
+            }
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var ingredientService = scope.ServiceProvider.GetRequiredService<IIngredientService>();
+
+                    foreach (var ingredientName in names)
+                    {
+                        var ingredient = await ingredientService.GetByName(ingredientName);
+                        if (ingredient?.Image?.Url == null)
+                        {
+                            var result = await ingredientService.RegenerateImage(ingredientName);
+                            if (!result.Updated)
+                            {
+                                _logger.LogWarning("Background image generation skipped/failed for ingredient {IngredientName}. Error: {Error}", ingredientName, result.Error);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Background ingredient image generation failed");
+                }
+            });
         }
 
         [HttpPost("delete")]
