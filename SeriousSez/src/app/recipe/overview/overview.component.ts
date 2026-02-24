@@ -32,8 +32,9 @@ export class OverviewComponent implements OnInit {
   public ascending: boolean = true;
 
   public loading: boolean = true;
+  public loadError: boolean = false;
   isAuthenticated: boolean = false;
-  settings: UserSettings;
+  settings: UserSettings = { preferredLanguage: 'English', theme: 'Light', recipesTheme: 'Pretty', myRecipesTheme: 'Pretty' };
   subscription?: Subscription;
   settingsSubscription?: Subscription;
 
@@ -56,17 +57,28 @@ export class OverviewComponent implements OnInit {
   ngOnDestroy() {
     // prevent memory leak when component is destroyed
     this.subscription?.unsubscribe();
+    this.settingsSubscription?.unsubscribe();
   }
 
   getRecipes() {
+    this.loading = true;
+    this.loadError = false;
+
     this.recipeService.getRecipes().subscribe((recipes: Recipe[]) => {
-      this.recipes = recipes;
-      this.shownRecipes = recipes;
+      const normalizedRecipes = Array.isArray(recipes) ? recipes : [];
+      this.recipes = normalizedRecipes;
+      this.shownRecipes = normalizedRecipes;
       this.loading = false;
-      this.sort(this.sortSetting);
+
+      if (this.shownRecipes.length > 1) {
+        this.sort(this.sortSetting);
+      }
     },
       error => {
-        //this.notificationService.printErrorMessage(error);
+        this.recipes = [];
+        this.shownRecipes = [];
+        this.loadError = true;
+        this.loading = false;
       });
   }
 
