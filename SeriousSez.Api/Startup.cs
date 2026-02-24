@@ -30,6 +30,7 @@ namespace SeriousSez
 {
     public class Startup
     {
+        private const string CorsPolicyName = "AllowOrigin";
         private const string SecretKey = "iNivDmHLpUA223sqsfhqGbMRdRj1PVkH";
         private readonly SymmetricSecurityKey _signinKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
 
@@ -76,9 +77,13 @@ namespace SeriousSez
             // Configure CORS - MORE PERMISSIVE for development
             services.AddCors(c =>
             {
-                c.AddPolicy("AllowOrigin", options => options
+                c.AddPolicy(CorsPolicyName, options => options
                     .WithOrigins(
                         "http://localhost:4200",
+                        "https://localhost:4200",
+                        "http://127.0.0.1:4200",
+                        "https://127.0.0.1:4200",
+                        "https://www.recipes.sezginsahin.dk",
                         "https://recipes.sezginsahin.dk"
                     )
                     .AllowAnyMethod()
@@ -199,23 +204,11 @@ namespace SeriousSez
                 ForwardedHeaders = ForwardedHeaders.All
             });
 
-            // Apply CORS FIRST - before any other middleware
-            app.UseCors("AllowOrigin");
-
             // Log all requests for debugging - INCLUDING OPTIONS
             app.Use(async (context, next) =>
             {
                 logger.LogInformation($"Request: {context.Request.Method} {context.Request.Path} from {context.Request.Headers["Origin"]}");
                 logger.LogInformation($"Headers: {string.Join(", ", context.Request.Headers.Keys)}");
-
-                // Handle OPTIONS requests explicitly
-                if (context.Request.Method == "OPTIONS")
-                {
-                    logger.LogInformation("OPTIONS request - returning 200");
-                    context.Response.StatusCode = 200;
-                    await context.Response.CompleteAsync();
-                    return;
-                }
 
                 await next();
                 logger.LogInformation($"Response: {context.Response.StatusCode}");
@@ -232,6 +225,7 @@ namespace SeriousSez
             }
 
             app.UseRouting();
+            app.UseCors(CorsPolicyName);
             app.UseAuthentication();
             app.UseAuthorization();
 
