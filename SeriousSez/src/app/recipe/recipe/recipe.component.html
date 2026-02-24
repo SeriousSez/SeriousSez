@@ -5,11 +5,8 @@
         <article class="m-3">
             <header class="mb-2">
                 <div *ngIf="status" class="float-end">
-                    <div>
-                        <i [ngClass]="inGroceries ? 'fas fa-file-alt' : 'far fa-file-alt'" class="cursor-pointer brand-secondary" (click)="toggleGroceries()" serious-title="Groceries"></i>
-                        <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" class="cursor-pointer ms-2" style="color: gold;" (click)="toggleFavorite()" serious-title="Favorite"></i>
-                    </div>
-
+                    <i [ngClass]="inGroceries ? 'fas fa-file-alt' : 'far fa-file-alt'" class="cursor-pointer brand-secondary" (click)="toggleGroceries()" serious-title="Groceries"></i>
+                    <i [ngClass]="favored ? 'fas fa-star' : 'far fa-star'" class="cursor-pointer ms-2" style="color: gold;" (click)="toggleFavorite()" serious-title="Favorite"></i>
                     <i *ngIf="canEdit" class="fas fa-pen cursor-pointer ms-1" (click)="edit = true" serious-title="Edit"></i>
                 </div>
 
