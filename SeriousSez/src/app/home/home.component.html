@@ -6,17 +6,17 @@
     </h1>
 
     @if (status) {
-      <div>
-        <p class="lead text-muted">Welcome, feel free to click around!</p>
-      </div>
+    <div>
+      <p class="lead text-muted">Welcome, feel free to click around!</p>
+    </div>
     }
 
     @if (!status) {
-      <div>
-        <p class="lead text-muted">Welcome, please sign up or log in to your account below.</p>
-        <a routerLink="/register" class="btn btn-outline-primary btn-lg" style="margin-right: 1vh;">Sign Up</a>
-        <a routerLink="/login" class="btn btn-outline-secondary btn-lg">Log In</a>
-      </div>
+    <div>
+      <p class="lead text-muted">Welcome, please sign up or log in to your account below.</p>
+      <a routerLink="/register" class="btn btn-outline-primary btn-lg" style="margin-right: 1vh;">Sign Up</a>
+      <a routerLink="/login" class="btn btn-outline-secondary btn-lg">Log In</a>
+    </div>
     }
   </div>
 </section>

@@ -4,15 +4,15 @@ import { Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/ro
 import { UserService } from '../services/user.service';
 
 @Injectable()
-export class AuthGuard  {
-  constructor(private userService: UserService, private router: Router) {}
-  
-  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) { 
+export class AuthGuard {
+  constructor(private userService: UserService, private router: Router) { }
+
+  canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
     if (this.userService.isAuthenticated()) {
       return true;
     }
 
-    this.router.navigate(['/login'], { queryParams: { returnUrl: state.url }});
+    this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
     return false;
-  }  
+  }
 }
